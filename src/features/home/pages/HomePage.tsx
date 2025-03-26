@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { Profile, profileService } from '../services/ProfileService';
 import LoadingScreen from '@/components/Loading';
+import { Profile, profileService } from '../http/ProfileHttpService';
 
 export default function Home() {
   const {
