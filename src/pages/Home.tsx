@@ -15,18 +15,18 @@ export default function Home() {
     },
   });
 
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
+  if (isError) {
+    return <div>Erro ao carregar</div>;
+  }
+
   return (
     <div>
-      {isLoading ? (
-        <LoadingScreen />
-      ) : isError ? (
-        <div>Erro ao carregar</div>
-      ) : (
-        <div>
-          <h1>{profile?.title}</h1>
-          <p>{profile?.completed ? 'Completo' : 'Incompleto'}</p>
-        </div>
-      )}
+      <h1>{profile?.title}</h1>
+      <p>{profile?.completed ? 'Completo' : 'Incompleto'}</p>
     </div>
   );
 }
