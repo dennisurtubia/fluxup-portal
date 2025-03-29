@@ -1,15 +1,18 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { useCallback, useState } from 'react';
-import { toast } from 'sonner';
-import { authServiceHttpServiceInstance } from '../http/AuthHttpService';
-import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 import { Eye, EyeOff } from 'lucide-react';
+import { useCallback, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { z } from 'zod';
+
+import { authServiceHttpServiceInstance } from '../http/AuthHttpService';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 
 const loginSchema = z.object({
   username: z.string().min(1, 'E-mail obrigatório').email('E-mail inválido'),
@@ -23,6 +26,7 @@ const LoginPage = () => {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<LoginData>({
     resolver: zodResolver(loginSchema),
   });
@@ -34,13 +38,16 @@ const LoginPage = () => {
   const loginMutation = useMutation({
     mutationFn: (data: LoginData) => authServiceHttpServiceInstance.login(data),
     onSuccess: (response) => {
-      toast.success('Login realizado com sucesso!');
+      toast(`Bem-vindo(a), ${jwtDecode(response.access_token).sub}`);
       const token = response.access_token;
       localStorage.setItem('token', token);
       navigate('/app');
     },
     onError: () => {
-      toast.error('Erro ao realizar login');
+      toast.error('E-mail ou senha inválidos');
+      reset({
+        password: '',
+      });
     },
   });
 

@@ -1,11 +1,18 @@
-import { lazy } from 'react';
 import { RouteObject } from 'react-router-dom';
 
-const LoginPage = lazy(() => import('../pages/LoginPage'));
+import LoginPage from '../pages/LoginPage';
+
+import GuestGuard from '@/guards/GuestGuard';
 
 export const authRoutes: RouteObject[] = [
   {
     path: '/login',
-    element: <LoginPage />,
+    element: <GuestGuard />,
+    children: [
+      {
+        path: '',
+        element: <LoginPage />,
+      },
+    ],
   },
 ];
