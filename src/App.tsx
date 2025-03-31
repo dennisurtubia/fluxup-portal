@@ -5,8 +5,8 @@ import { BrowserRouter } from 'react-router-dom';
 import { Bounce, ToastContainer } from 'react-toastify';
 
 import LoadingScreen from './components/Loading';
-import AppRouter from './routes';
 import { ThemeProvider } from './providers/ThemeProvider';
+import AppRouter from './routes';
 
 const queryClient = new QueryClient();
 
