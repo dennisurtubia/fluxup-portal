@@ -10,6 +10,7 @@ import { z } from 'zod';
 
 import { authServiceHttpServiceInstance } from '../http/AuthHttpService';
 
+import Logo from '@/assets/fluxup.svg';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -59,13 +60,12 @@ const LoginPage = () => {
   );
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center
-      bg-gradient-to-br from-primary to-primary/70"
-    >
+    <div className="min-h-screen flex items-center justify-center">
       <Card className="w-full max-w-sm shadow-lg">
         <CardHeader>
-          <CardTitle className="text-2xl text-center">Entrar</CardTitle>
+          <CardTitle className="text-2xl text-center">
+            <img src={Logo} alt="Logo" className="w-42 mx-auto mb-4" />
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -84,15 +84,14 @@ const LoginPage = () => {
                   {...register('password')}
                   className="pr-10"
                 />
-                <button
-                  type="button"
+                <Button
+                  className="absolute top-1/2 right-2 -translate-y-1/2 hover:bg-transparent"
                   onClick={togglePassword}
-                  className="absolute top-1/2 right-2 -translate-y-1/2
-                  text-muted-foreground hover:text-foreground"
                   tabIndex={-1}
+                  variant="ghost"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
+                </Button>
               </div>
 
               {errors.password && (
