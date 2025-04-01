@@ -1,4 +1,4 @@
-import { Home, PiggyBank, Banknote, Tag } from 'lucide-react';
+import { Home, Banknote, Tag } from 'lucide-react';
 
 export type MenuItem = {
   title: string;
@@ -16,16 +16,10 @@ export function getMenuList(pathname: string): MenuItem[] {
       icon: Home,
     },
     {
-      title: 'Despesas',
+      title: 'Orçamentos',
       url: '',
       isActive: pathname === '',
       icon: Banknote,
-    },
-    {
-      title: 'Receitas',
-      url: '',
-      isActive: pathname === '',
-      icon: PiggyBank,
     },
     {
       title: 'Categorias',
