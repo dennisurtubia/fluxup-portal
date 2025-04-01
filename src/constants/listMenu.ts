@@ -7,51 +7,31 @@ export type MenuItem = {
   isActive?: boolean;
 };
 
-export type MenuSection = {
-  title: string;
-  items: MenuItem[];
-};
-
-export function getMenuList(pathname: string): MenuSection[] {
+export function getMenuList(pathname: string): MenuItem[] {
   return [
     {
-      title: 'Dashboard',
-      items: [
-        {
-          title: 'Home',
-          url: '/app',
-          isActive: pathname === '/app',
-          icon: Home,
-        },
-      ],
+      title: 'Home',
+      url: '/app',
+      isActive: pathname === '/app',
+      icon: Home,
     },
     {
-      title: 'Orçamento',
-      items: [
-        {
-          title: 'Despesas',
-          url: '',
-          isActive: pathname === '',
-          icon: Banknote,
-        },
-        {
-          title: 'Receitas',
-          url: '',
-          isActive: pathname === '',
-          icon: PiggyBank,
-        },
-      ],
+      title: 'Despesas',
+      url: '',
+      isActive: pathname === '',
+      icon: Banknote,
+    },
+    {
+      title: 'Receitas',
+      url: '',
+      isActive: pathname === '',
+      icon: PiggyBank,
     },
     {
       title: 'Categorias',
-      items: [
-        {
-          title: 'Categorias',
-          url: '',
-          isActive: pathname === '',
-          icon: Tag,
-        },
-      ],
+      url: '',
+      isActive: pathname === '',
+      icon: Tag,
     },
   ];
 }

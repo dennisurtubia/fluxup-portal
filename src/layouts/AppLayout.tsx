@@ -8,11 +8,10 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/s
 import { getMenuList } from '@/constants/listMenu';
 
 const AppLayout = () => {
-  const menuSections = getMenuList(window.location.pathname);
-
+  const menuItems = getMenuList(window.location.pathname);
   return (
     <SidebarProvider>
-      <AppSidebar menuSections={menuSections} />
+      <AppSidebar menuItems={menuItems} />
       <SidebarInset>
         <header
           className="flex sticky top-0 bg-background 
