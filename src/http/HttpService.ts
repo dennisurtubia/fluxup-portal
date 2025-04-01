@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+
 import { IHttpClient } from './IHttpClient';
 
 export class HttpService implements IHttpClient {
@@ -8,7 +9,6 @@ export class HttpService implements IHttpClient {
     this.client = axios.create({
       baseURL: import.meta.env.VITE_BASE_URL,
       headers: {
-        'Content-Type': 'application/json',
         ...config?.headers,
       },
       ...config,
