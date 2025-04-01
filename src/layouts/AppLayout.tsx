@@ -5,7 +5,7 @@ import { Outlet } from 'react-router-dom';
 import LoadingScreen from '@/components/Loading';
 import { AppSidebar } from '@/components/Sidebar';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
-import { getMenuList } from '@/lib/listMenu';
+import { getMenuList } from '@/constants/listMenu';
 
 const AppLayout = () => {
   const menuSections = getMenuList(window.location.pathname);

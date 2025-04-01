@@ -18,21 +18,21 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar';
 
-interface MenuItem {
+type MenuItem = {
   title: string;
   url: string;
   icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   isActive?: boolean;
-}
+};
 
-interface MenuSection {
+type MenuSection = {
   title: string;
   items: MenuItem[];
-}
+};
 
-interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
   menuSections?: MenuSection[];
-}
+};
 
 export function AppSidebar({ menuSections = [], ...props }: AppSidebarProps) {
   return (
