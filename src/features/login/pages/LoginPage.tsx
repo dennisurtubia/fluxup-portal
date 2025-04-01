@@ -59,6 +59,21 @@ const LoginPage = () => {
     [loginMutation],
   );
 
+  const renderEyeButton = useCallback(() => {
+    return (
+      <Button
+        type="button"
+        className="absolute top-1/2 right-2 -translate-y-1/2 hover:bg-transparent"
+        onClick={togglePassword}
+        tabIndex={-1}
+        variant="ghost"
+        role="button"
+      >
+        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+      </Button>
+    );
+  }, [showPassword, togglePassword]);
+
   return (
     <div className="min-h-screen flex items-center justify-center">
       <Card className="w-full max-w-sm shadow-lg">
@@ -84,14 +99,7 @@ const LoginPage = () => {
                   {...register('password')}
                   className="pr-10"
                 />
-                <Button
-                  className="absolute top-1/2 right-2 -translate-y-1/2 hover:bg-transparent"
-                  onClick={togglePassword}
-                  tabIndex={-1}
-                  variant="ghost"
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </Button>
+                {renderEyeButton()}
               </div>
 
               {errors.password && (
