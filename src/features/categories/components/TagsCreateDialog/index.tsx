@@ -86,7 +86,7 @@ const TagsCreateDialog = forwardRef<TagsCreateDialogRef>((_, ref) => {
                 <FormItem>
                   <FormLabel>Nome</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input placeholder="Ex: Alimentação" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -99,7 +99,7 @@ const TagsCreateDialog = forwardRef<TagsCreateDialogRef>((_, ref) => {
                 <FormItem>
                   <FormLabel>Descrição</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input placeholder="Descrição breve da categoria" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
