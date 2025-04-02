@@ -20,7 +20,7 @@ const AppLayout = () => {
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 w-px h-4 bg-gray-300" />
         </header>
-        <main className="flex-1 p-4 overflow-auto">
+        <main className="flex-1 p-8 overflow-auto">
           <Suspense fallback={<LoadingScreen />}>
             <Outlet />
           </Suspense>
