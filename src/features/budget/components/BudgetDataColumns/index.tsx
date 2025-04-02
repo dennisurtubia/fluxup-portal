@@ -82,11 +82,15 @@ export const BudgetDataColumns: ColumnDef<BudgetType>[] = [
   },
   {
     id: 'actions',
-    header: 'Ações',
+    header: () => <div className="text-center">Ações</div>,
     cell: ({ row }) => {
       const myRow = row.original;
 
-      return <NavigateButton rowId={myRow.id.toString()} />;
+      return (
+        <div className="flex justify-center">
+          <NavigateButton rowId={myRow.id.toString()} />
+        </div>
+      );
     },
     enableSorting: false,
     enableHiding: false,

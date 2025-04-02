@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useCallback } from 'react';
 
 import { BudgetDataColumns } from '../components/BudgetDataColumns';
 import { budgetHttpServiceInstance, BudgetType } from '../http/BudgetHttpService';
@@ -15,12 +16,17 @@ export default function BudgetPage() {
     isError,
   } = useQuery<BudgetType[] | undefined>({
     queryKey: ['budgets', 1],
+    retry: false,
     queryFn: async () => {
       const response = await budgetHttpServiceInstance.getBudgets();
 
       return response;
     },
   });
+
+  const handleCreateBudget = useCallback(() => {
+    // TODO: Adicionar logica para abrir o modal de criar orçamento
+  }, []);
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -39,7 +45,9 @@ export default function BudgetPage() {
     <div className="h-full w-full">
       <div className="flex justify-between items-center mb-5">
         <Title>Orçamentos</Title>
-        <Button variant="default">Criar Orçamento</Button>
+        <Button variant="default" onClick={handleCreateBudget}>
+          Criar Orçamento
+        </Button>
       </div>
 
       <DataTable columns={BudgetDataColumns} data={budgets || []} />
