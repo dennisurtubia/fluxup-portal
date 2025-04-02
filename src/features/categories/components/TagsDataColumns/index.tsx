@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 
 export const TagsDataColumns: ColumnDef<TagsType>[] = [
   {
-    id: 'Nome',
     accessorKey: 'name',
     header: ({ column }) => {
       return (
@@ -23,7 +22,6 @@ export const TagsDataColumns: ColumnDef<TagsType>[] = [
     cell: ({ row }) => <div className="font-medium">{row.getValue('name')}</div>,
   },
   {
-    id: 'Descrição',
     accessorKey: 'description',
     header: ({ column }) => {
       return (

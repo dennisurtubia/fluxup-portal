@@ -23,7 +23,6 @@ const NavigateButton: React.FC<{ rowId: string }> = ({ rowId }) => {
 
 export const BudgetDataColumns: ColumnDef<BudgetType>[] = [
   {
-    id: 'Nome',
     accessorKey: 'name',
     header: ({ column }) => {
       return (
@@ -55,7 +54,6 @@ export const BudgetDataColumns: ColumnDef<BudgetType>[] = [
     cell: ({ row }) => <div className="font-medium">{row.getValue('description')}</div>,
   },
   {
-    id: 'Data de Início',
     accessorKey: 'start_date',
     header: ({ column }) => {
       return (
@@ -74,7 +72,6 @@ export const BudgetDataColumns: ColumnDef<BudgetType>[] = [
     },
   },
   {
-    id: 'Data de Fim',
     accessorKey: 'end_date',
     header: ({ column }) => {
       return (
