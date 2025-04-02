@@ -10,11 +10,11 @@ export type BudgetType = {
   updated_at: string;
 };
 
-type BudgetDataType = {
+export type BudgetDataType = {
   name: string;
-  description: string;
-  start_date: string;
-  end_date: string;
+  description?: string;
+  start_date: Date;
+  end_date: Date;
 };
 
 class BudgetHttpService extends HttpService {
@@ -23,7 +23,10 @@ class BudgetHttpService extends HttpService {
   }
 
   async createBudget(data: BudgetDataType) {
-    return this.post('/budgets', data);
+    const start_date = data.start_date.toISOString().split('T')[0];
+    const end_date = data.end_date.toISOString().split('T')[0];
+
+    return this.post('/budgets', { ...data, start_date, end_date });
   }
 
   async updateBudget(id: number, data: BudgetDataType) {
