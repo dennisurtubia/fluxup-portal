@@ -2,6 +2,7 @@ import { Navigate, useRoutes } from 'react-router-dom';
 
 import AppLayout from '../layouts/AppLayout';
 
+import { budgetsRouter } from '@/features/budget/routes';
 import { homeRoutes } from '@/features/home/routes';
 import { authRoutes } from '@/features/login/routes';
 import AuthGuard from '@/guards/AuthGuard';
@@ -9,6 +10,8 @@ import useAuth from '@/hooks/useAuth';
 
 const AppRouter = () => {
   const { isAuthenticated } = useAuth();
+
+  const routers = [...homeRoutes, ...budgetsRouter];
 
   const routes = useRoutes([
     {
@@ -23,10 +26,11 @@ const AppRouter = () => {
         {
           path: '',
           element: <AppLayout />,
-          children: [...homeRoutes],
+          children: routers,
         },
       ],
     },
+
     {
       path: '*',
       element: <div>Página não encontrada</div>,
