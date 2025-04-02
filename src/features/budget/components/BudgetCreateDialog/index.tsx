@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
 const budgetCreateSchema = z.object({
@@ -106,7 +107,7 @@ const BudgetCreateDialog = forwardRef<BudgetCreateDialogRef>((_, ref) => {
                 <FormItem>
                   <FormLabel>Descrição</FormLabel>
                   <FormControl>
-                    <Input placeholder="Descrição breve do orçamento" {...field} />
+                    <Textarea placeholder="Descrição breve do orçamento" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

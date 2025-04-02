@@ -25,6 +25,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 const TagsCreateSchema = z.object({
   name: z.string(),
@@ -99,7 +100,7 @@ const TagsCreateDialog = forwardRef<TagsCreateDialogRef>((_, ref) => {
                 <FormItem>
                   <FormLabel>Descrição</FormLabel>
                   <FormControl>
-                    <Input placeholder="Descrição breve da categoria" {...field} />
+                    <Textarea placeholder="Descrição breve da categoria" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
