@@ -16,7 +16,7 @@ const NavigateButton: React.FC<{ rowId: string }> = ({ rowId }) => {
 
   return (
     <Button variant="outline" size="sm" onClick={handleNavigate}>
-      Ver detalhes
+      Detalhes
     </Button>
   );
 };
@@ -65,6 +65,10 @@ export const BudgetDataColumns: ColumnDef<BudgetType>[] = [
         </Button>
       );
     },
+    cell: ({ row }) => {
+      const date = new Date(row.getValue('start_date'));
+      return <div className="font-medium">{date.toLocaleDateString()}</div>;
+    },
   },
   {
     accessorKey: 'end_date',
@@ -79,15 +83,18 @@ export const BudgetDataColumns: ColumnDef<BudgetType>[] = [
         </Button>
       );
     },
+    cell: ({ row }) => {
+      const date = new Date(row.getValue('end_date'));
+      return <div className="font-medium">{date.toLocaleDateString()}</div>;
+    },
   },
   {
     id: 'actions',
-    header: () => <div className="text-center">Ações</div>,
     cell: ({ row }) => {
       const myRow = row.original;
 
       return (
-        <div className="flex justify-center">
+        <div className="flex justify-end">
           <NavigateButton rowId={myRow.id.toString()} />
         </div>
       );

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 
+import BudgetCreateDialog, { BudgetCreateDialogRef } from '../components/BudgetCreateDialog';
 import { BudgetDataColumns } from '../components/BudgetDataColumns';
 import { budgetHttpServiceInstance, BudgetType } from '../http/BudgetHttpService';
 
@@ -10,6 +11,8 @@ import { Button } from '@/components/ui/button';
 import Title from '@/components/ui/title';
 
 export default function BudgetPage() {
+  const dialogRef = useRef<BudgetCreateDialogRef>(null);
+
   const {
     data: budgets,
     isLoading,
@@ -25,7 +28,7 @@ export default function BudgetPage() {
   });
 
   const handleCreateBudget = useCallback(() => {
-    // TODO: Adicionar logica para abrir o modal de criar orçamento
+    dialogRef.current?.open();
   }, []);
 
   if (isLoading) {
@@ -48,6 +51,8 @@ export default function BudgetPage() {
         <Button variant="default" onClick={handleCreateBudget}>
           Criar Orçamento
         </Button>
+
+        <BudgetCreateDialog ref={dialogRef} />
       </div>
 
       <DataTable columns={BudgetDataColumns} data={budgets || []} />
