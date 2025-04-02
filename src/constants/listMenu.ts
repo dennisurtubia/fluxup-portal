@@ -17,8 +17,8 @@ export function getMenuList(pathname: string): MenuItem[] {
     },
     {
       title: 'Orçamentos',
-      url: '',
-      isActive: pathname === '',
+      url: '/app/budgets',
+      isActive: pathname === '/app/budgets',
       icon: Banknote,
     },
     {
