@@ -129,7 +129,7 @@ const BudgetCreateDialog = forwardRef<BudgetCreateDialogRef>((_, ref) => {
                           )}
                         >
                           {field.value ? (
-                            format(field.value, 'PPP')
+                            format(field.value, 'MM/dd/yyyy')
                           ) : (
                             <span>Selecione uma data</span>
                           )}
@@ -167,7 +167,7 @@ const BudgetCreateDialog = forwardRef<BudgetCreateDialogRef>((_, ref) => {
                           )}
                         >
                           {field.value ? (
-                            format(field.value, 'PPP')
+                            format(field.value, 'MM/dd/yyyy')
                           ) : (
                             <span>Selecione uma data</span>
                           )}
