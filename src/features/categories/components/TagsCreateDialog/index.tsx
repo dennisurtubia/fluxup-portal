@@ -75,7 +75,7 @@ const TagsCreateDialog = forwardRef<TagsCreateDialogRef>((_, ref) => {
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Criar nova tag</DialogTitle>
-          <DialogDescription>Preencha os campos abaixo para criar uma nova tag.</DialogDescription>
+          <DialogDescription>Preencha os detalhes para criar uma nova tag.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
