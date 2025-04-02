@@ -23,8 +23,8 @@ export function getMenuList(pathname: string): MenuItem[] {
     },
     {
       title: 'Categorias',
-      url: '',
-      isActive: pathname === '',
+      url: '/app/tags',
+      isActive: pathname === '/app/tags',
       icon: Tag,
     },
   ];

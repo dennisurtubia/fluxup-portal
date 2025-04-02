@@ -1,11 +1,10 @@
-'use client';
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { forwardRef, useCallback, useImperativeHandle, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
 import { z } from 'zod';
 
 import { budgetHttpServiceInstance } from '../../http/BudgetHttpService';
@@ -65,6 +64,8 @@ const BudgetCreateDialog = forwardRef<BudgetCreateDialogRef>((_, ref) => {
       queryClient.invalidateQueries({ queryKey: ['budgets', 1] });
       setOpen(false);
       form.reset();
+
+      toast.success('Orçamento criado com sucesso!');
     },
     onError: () => {},
   });
@@ -80,8 +81,8 @@ const BudgetCreateDialog = forwardRef<BudgetCreateDialogRef>((_, ref) => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create account</DialogTitle>
-          <DialogDescription>Fill in your details to create a new account.</DialogDescription>
+          <DialogTitle>Criar orçamento</DialogTitle>
+          <DialogDescription>Preencha os detalhes para criar um novo orçamento.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
