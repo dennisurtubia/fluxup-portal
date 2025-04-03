@@ -1,11 +1,10 @@
-'use client';
-
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
 import { forwardRef, useCallback, useImperativeHandle, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
 import { z } from 'zod';
 
 import { budgetHttpServiceInstance } from '../../http/BudgetHttpService';
@@ -30,6 +29,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
 const budgetCreateSchema = z.object({
@@ -65,6 +65,8 @@ const BudgetCreateDialog = forwardRef<BudgetCreateDialogRef>((_, ref) => {
       queryClient.invalidateQueries({ queryKey: ['budgets', 1] });
       setOpen(false);
       form.reset();
+
+      toast.success('Orçamento criado com sucesso!');
     },
     onError: () => {},
   });
@@ -80,8 +82,8 @@ const BudgetCreateDialog = forwardRef<BudgetCreateDialogRef>((_, ref) => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create account</DialogTitle>
-          <DialogDescription>Fill in your details to create a new account.</DialogDescription>
+          <DialogTitle>Criar orçamento</DialogTitle>
+          <DialogDescription>Preencha os detalhes para criar um novo orçamento.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -92,7 +94,7 @@ const BudgetCreateDialog = forwardRef<BudgetCreateDialogRef>((_, ref) => {
                 <FormItem>
                   <FormLabel>Nome</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input placeholder="Ex: Viagem" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -105,7 +107,7 @@ const BudgetCreateDialog = forwardRef<BudgetCreateDialogRef>((_, ref) => {
                 <FormItem>
                   <FormLabel>Descrição</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Textarea placeholder="Descrição breve do orçamento" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -128,7 +130,7 @@ const BudgetCreateDialog = forwardRef<BudgetCreateDialogRef>((_, ref) => {
                           )}
                         >
                           {field.value ? (
-                            format(field.value, 'PPP')
+                            format(field.value, 'dd/MM/yyyy')
                           ) : (
                             <span>Selecione uma data</span>
                           )}
@@ -166,7 +168,7 @@ const BudgetCreateDialog = forwardRef<BudgetCreateDialogRef>((_, ref) => {
                           )}
                         >
                           {field.value ? (
-                            format(field.value, 'PPP')
+                            format(field.value, 'dd/MM/yyyy')
                           ) : (
                             <span>Selecione uma data</span>
                           )}
