@@ -38,7 +38,6 @@ export const BudgetDataColumns: ColumnDef<BudgetType>[] = [
     cell: ({ row }) => <div className="font-medium">{row.getValue('name')}</div>,
   },
   {
-    id: 'Descrição',
     accessorKey: 'description',
     header: ({ column }) => {
       return (
