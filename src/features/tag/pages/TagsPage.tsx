@@ -1,27 +1,27 @@
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useRef } from 'react';
 
-import TagsCreateDialog, { TagsCreateDialogRef } from '../components/TagsCreateDialog';
-import { TagsDataColumns } from '../components/TagsDataColumns';
-import { TagsHttpServiceInstance, TagsType } from '../http/TagsHttpService';
+import TagCreateDialog, { TagCreateDialogRef } from '../components/TagCreateDialog';
+import { TagDataColumns } from '../components/TagDataColumns';
+import { TagHttpServiceInstance, TagType } from '../http/TagHttpService';
 
 import { DataTable } from '@/components/DataTable';
 import LoadingScreen from '@/components/Loading';
 import { Button } from '@/components/ui/button';
 import Title from '@/components/ui/title';
 
-export default function TagsPage() {
-  const dialogRef = useRef<TagsCreateDialogRef>(null);
+export default function TagPage() {
+  const dialogRef = useRef<TagCreateDialogRef>(null);
 
   const {
     data: tags,
     isLoading,
     isError,
-  } = useQuery<TagsType[] | undefined>({
+  } = useQuery<TagType[] | undefined>({
     queryKey: ['tags', 1],
     retry: false,
     queryFn: async () => {
-      const response = await TagsHttpServiceInstance.getTags();
+      const response = await TagHttpServiceInstance.getTags();
 
       return response;
     },
@@ -52,10 +52,10 @@ export default function TagsPage() {
           Criar Tags
         </Button>
 
-        <TagsCreateDialog ref={dialogRef} />
+        <TagCreateDialog ref={dialogRef} />
       </div>
 
-      <DataTable columns={TagsDataColumns} data={tags || []} />
+      <DataTable columns={TagDataColumns} data={tags || []} />
     </div>
   );
 }

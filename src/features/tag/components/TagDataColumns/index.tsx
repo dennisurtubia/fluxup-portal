@@ -1,11 +1,11 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 
-import { TagsType } from '../../http/TagsHttpService';
+import { TagType } from '../../http/TagHttpService';
 
 import { Button } from '@/components/ui/button';
 
-export const TagsDataColumns: ColumnDef<TagsType>[] = [
+export const TagDataColumns: ColumnDef<TagType>[] = [
   {
     accessorKey: 'name',
     header: ({ column }) => {

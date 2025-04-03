@@ -1,6 +1,6 @@
 import { HttpService } from '@/http/HttpService';
 
-export type TagsType = {
+export type TagType = {
   id: number;
   name: string;
   description: string;
@@ -8,19 +8,19 @@ export type TagsType = {
   updated_at: string;
 };
 
-export type TagsDataType = {
+export type TagDataType = {
   name: string;
   description: string;
 };
 
-class TagsHttpService extends HttpService {
+class TagHttpService extends HttpService {
   async getTags() {
-    return this.get<TagsType[]>('/tags');
+    return this.get<TagType[]>('/tags');
   }
 
-  async createTags(data: TagsDataType) {
+  async createTag(data: TagDataType) {
     return this.post('/tags', { ...data });
   }
 }
 
-export const TagsHttpServiceInstance = new TagsHttpService();
+export const TagHttpServiceInstance = new TagHttpService();

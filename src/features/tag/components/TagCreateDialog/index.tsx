@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { z } from 'zod';
 
-import { TagsHttpServiceInstance } from '../../http/TagsHttpService';
+import { TagHttpServiceInstance } from '../../http/TagHttpService';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -27,24 +27,24 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
-const TagsCreateSchema = z.object({
+const TagCreateSchema = z.object({
   name: z.string(),
   description: z.string(),
 });
 
-export type TagsCreateDialogRef = {
+export type TagCreateDialogRef = {
   open: () => void;
   close: () => void;
 };
 
-type TagsCreateData = z.infer<typeof TagsCreateSchema>;
+type TagCreateData = z.infer<typeof TagCreateSchema>;
 
-const TagsCreateDialog = forwardRef<TagsCreateDialogRef>((_, ref) => {
+const TagCreateDialog = forwardRef<TagCreateDialogRef>((_, ref) => {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  const form = useForm<TagsCreateData>({
-    resolver: zodResolver(TagsCreateSchema),
+  const form = useForm<TagCreateData>({
+    resolver: zodResolver(TagCreateSchema),
   });
 
   useImperativeHandle(ref, () => ({
@@ -52,8 +52,8 @@ const TagsCreateDialog = forwardRef<TagsCreateDialogRef>((_, ref) => {
     close: () => setOpen(false),
   }));
 
-  const TagsMutation = useMutation({
-    mutationFn: (data: TagsCreateData) => TagsHttpServiceInstance.createTags(data),
+  const TagMutation = useMutation({
+    mutationFn: (data: TagCreateData) => TagHttpServiceInstance.createTag(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tags', 1] });
       setOpen(false);
@@ -65,10 +65,10 @@ const TagsCreateDialog = forwardRef<TagsCreateDialogRef>((_, ref) => {
   });
 
   const onSubmit = useCallback(
-    (data: TagsCreateData) => {
-      TagsMutation.mutate(data);
+    (data: TagCreateData) => {
+      TagMutation.mutate(data);
     },
-    [TagsMutation],
+    [TagMutation],
   );
 
   return (
@@ -116,4 +116,4 @@ const TagsCreateDialog = forwardRef<TagsCreateDialogRef>((_, ref) => {
   );
 });
 
-export default TagsCreateDialog;
+export default TagCreateDialog;
