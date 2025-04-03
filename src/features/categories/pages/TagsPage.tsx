@@ -47,7 +47,7 @@ export default function TagsPage() {
   return (
     <div className="h-full w-full">
       <div className="flex justify-between items-center mb-5">
-        <Title>Tags</Title>
+        <Title>Categorias</Title>
         <Button variant="default" onClick={handleCreateTags}>
           Criar Tags
         </Button>
