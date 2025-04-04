@@ -7,12 +7,16 @@ import { BudgetType } from '../../http/BudgetHttpService';
 
 import { Button } from '@/components/ui/button';
 
-const NavigateButton: React.FC<{ rowId: string }> = ({ rowId }) => {
+const NavigateButton: React.FC<{ rowId: string; name: string }> = ({ rowId, name }) => {
   const navigate = useNavigate();
 
   const handleNavigate = useCallback(() => {
-    navigate(`/app/budgets/${rowId}`);
-  }, [navigate, rowId]);
+    navigate(`/app/budgets/${rowId}`, {
+      state: {
+        name: name,
+      },
+    });
+  }, [navigate, rowId, name]);
 
   return (
     <Button variant="outline" size="sm" onClick={handleNavigate}>
@@ -95,7 +99,7 @@ export const BudgetDataColumns: ColumnDef<BudgetType>[] = [
 
       return (
         <div className="flex justify-end">
-          <NavigateButton rowId={myRow.id.toString()} />
+          <NavigateButton rowId={myRow.id.toString()} name={myRow.name} />
         </div>
       );
     },
