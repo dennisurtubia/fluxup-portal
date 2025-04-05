@@ -2,10 +2,12 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 
 import Logo from '../../assets/fluxup.svg';
+import { SidebarUser } from '../SidebarUser';
 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -13,12 +15,15 @@ import {
   SidebarRail,
 } from '@/components/ui/sidebar';
 import { MenuItem } from '@/constants/listMenu';
+import useAuth from '@/hooks/useAuth';
 
 type AppSidebarProps = React.ComponentPropsWithoutRef<typeof Sidebar> & {
   menuItems?: MenuItem[];
 };
 
 export function AppSidebar({ menuItems = [], ...props }: AppSidebarProps) {
+  const { user } = useAuth();
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -45,6 +50,9 @@ export function AppSidebar({ menuItems = [], ...props }: AppSidebarProps) {
         </SidebarMenu>
       </SidebarContent>
       <SidebarRail />
+      <SidebarFooter>
+        <SidebarUser user={{ email: user?.sub || '' }} />
+      </SidebarFooter>
     </Sidebar>
   );
 }

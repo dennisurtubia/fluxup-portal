@@ -32,12 +32,17 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
-const budgetCreateSchema = z.object({
-  name: z.string(),
-  description: z.string().optional(),
-  start_date: z.date(),
-  end_date: z.date(),
-});
+const budgetCreateSchema = z
+  .object({
+    name: z.string({ required_error: 'O nome é obrigatório' }),
+    description: z.string().max(60, 'O máximo de caracteres é 60').optional(),
+    start_date: z.date({ required_error: 'A data de início é obrigatória' }),
+    end_date: z.date({ required_error: 'A data de fim é obrigatória' }),
+  })
+  .refine((data) => data.start_date <= data.end_date, {
+    message: 'A data de início não pode ser maior que a data de fim.',
+    path: ['start_date'],
+  });
 
 export type BudgetCreateDialogRef = {
   open: () => void;
@@ -65,7 +70,6 @@ const BudgetCreateDialog = forwardRef<BudgetCreateDialogRef>((_, ref) => {
       queryClient.invalidateQueries({ queryKey: ['budgets', 1] });
       setOpen(false);
       form.reset();
-
       toast.success('Orçamento criado com sucesso!');
     },
     onError: () => {},
@@ -107,7 +111,11 @@ const BudgetCreateDialog = forwardRef<BudgetCreateDialogRef>((_, ref) => {
                 <FormItem>
                   <FormLabel>Descrição</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Descrição breve do orçamento" {...field} />
+                    <Textarea
+                      maxLength={60}
+                      placeholder="Descrição breve do orçamento"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
