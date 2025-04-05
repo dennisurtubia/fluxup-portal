@@ -46,12 +46,14 @@ const budgetEntryCreateSchema = z.object({
 export type BudgetEntryCreateDialogRef = {
   open: () => void;
   close: () => void;
+  setBudgetId: (_: number) => void;
 };
 
 type BudgetEntryCreateData = z.infer<typeof budgetEntryCreateSchema>;
 
 const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) => {
   const [open, setOpen] = useState(false);
+  const [budgetId, setBudgetId] = useState<number | null>(null);
   const queryClient = useQueryClient();
 
   const form = useForm<BudgetEntryCreateData>({
@@ -61,13 +63,19 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
   useImperativeHandle(ref, () => ({
     open: () => setOpen(true),
     close: () => setOpen(false),
+    setBudgetId: (newBudgetId: number) => setBudgetId(newBudgetId),
   }));
 
   const budgetMutation = useMutation({
-    mutationFn: (data: BudgetEntryCreateData) =>
-      budgetEntryHttpServiceInstance.createBudgetEntry(1, data),
+    mutationFn: async (data: BudgetEntryCreateData) => {
+      if (budgetId == null) return Promise.resolve(null);
+
+      return budgetEntryHttpServiceInstance.createBudgetEntry(budgetId, data);
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['budgets-entry', 1] });
+      queryClient.invalidateQueries({ queryKey: ['budgetsEntryExpense', 1] });
+      queryClient.invalidateQueries({ queryKey: ['budgetsEntryIncome', 1] });
+
       setOpen(false);
       form.reset();
 

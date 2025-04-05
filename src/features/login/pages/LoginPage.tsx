@@ -28,6 +28,7 @@ const LoginPage = () => {
     handleSubmit,
     formState: { errors },
     reset,
+    getValues,
   } = useForm<LoginData>({
     resolver: zodResolver(loginSchema),
   });
@@ -47,6 +48,7 @@ const LoginPage = () => {
     onError: () => {
       toast.error('E-mail ou senha inválidos');
       reset({
+        username: getValues('username'),
         password: '',
       });
     },

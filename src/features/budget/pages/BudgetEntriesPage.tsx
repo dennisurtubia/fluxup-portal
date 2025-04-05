@@ -23,8 +23,9 @@ export default function BudgetEntriesPage() {
   const dialogRef = useRef<BudgetEntryCreateDialogRef>(null);
 
   const handleCreateBudgetEntry = useCallback(() => {
+    dialogRef.current?.setBudgetId(id);
     dialogRef.current?.open();
-  }, []);
+  }, [id]);
 
   return (
     <div className="h-full w-full">
