@@ -2,6 +2,7 @@ import { useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 
+import { BudgetEntriesExpense } from '../components/BudgetEntriesExpense';
 import { BudgetEntriesIncome } from '../components/BudgetEntriesIncome';
 import BudgetEntryCreateDialog, {
   BudgetEntryCreateDialogRef,
@@ -42,10 +43,10 @@ export default function BudgetEntriesPage() {
         </TabsList>
 
         <TabsContent value="income" className="space-y-4">
-          <BudgetEntriesIncome id={Number(id)} />
+          <BudgetEntriesIncome budgetId={Number(id)} />
         </TabsContent>
         <TabsContent value="expense" className="space-y-4">
-          <p>Despesas</p>
+          <BudgetEntriesExpense budgetId={Number(id)} />
         </TabsContent>
       </Tabs>
     </div>

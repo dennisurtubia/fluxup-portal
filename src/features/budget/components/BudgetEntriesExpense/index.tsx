@@ -6,20 +6,20 @@ import { BudgetEntriesIncomeColumns } from '../BudgetEntriesColumns';
 import { DataTable } from '@/components/DataTable';
 import LoadingScreen from '@/components/Loading';
 
-type BudgetEntriesIncomeProps = {
+type BudgetEntriesExpenseProps = {
   budgetId: number;
 };
 
-export function BudgetEntriesIncome({ budgetId }: BudgetEntriesIncomeProps) {
+export function BudgetEntriesExpense({ budgetId }: BudgetEntriesExpenseProps) {
   const {
-    data: budgetsEntryIncome,
+    data: budgetsEntryExpense,
     isLoading,
     isError,
   } = useQuery<BudgetEntryType[] | undefined>({
-    queryKey: ['budgetsEntryIncome', 1],
+    queryKey: ['budgetsEntryExpense', 1],
     retry: false,
     queryFn: async () => {
-      const response = await budgetEntryHttpServiceInstance.getBudgetEntries(budgetId, 'income');
+      const response = await budgetEntryHttpServiceInstance.getBudgetEntries(budgetId, 'expense');
 
       return response;
     },
@@ -32,7 +32,7 @@ export function BudgetEntriesIncome({ budgetId }: BudgetEntriesIncomeProps) {
   if (isError) {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold">Erro ao carregar receitas</h1>
+        <h1 className="text-2xl font-bold">Erro ao carregar despesas</h1>
         <p className="mt-4 text-lg">Tente novamente mais tarde.</p>
       </div>
     );
@@ -40,7 +40,7 @@ export function BudgetEntriesIncome({ budgetId }: BudgetEntriesIncomeProps) {
 
   return (
     <div className="h-full w-full">
-      <DataTable columns={BudgetEntriesIncomeColumns} data={budgetsEntryIncome || []} />
+      <DataTable columns={BudgetEntriesIncomeColumns} data={budgetsEntryExpense || []} />
     </div>
   );
 }
