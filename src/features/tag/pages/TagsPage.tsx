@@ -49,7 +49,7 @@ export default function TagPage() {
       <div className="flex justify-between items-center mb-5">
         <Title>Categorias</Title>
         <Button variant="default" onClick={handleCreateTags}>
-          Criar Tags
+          Criar Categoria
         </Button>
 
         <TagCreateDialog ref={dialogRef} />
