@@ -6,6 +6,8 @@ export type BudgetEntryBodyType = {
   amount_micro: number;
   type: 'income' | 'expense';
   tags: number[];
+  year: number;
+  month: number;
 };
 
 export type BudgetEntryType = {
@@ -16,6 +18,8 @@ export type BudgetEntryType = {
   tags: TagType[];
   created_at: string;
   updated_at: string;
+  year: number;
+  month: number;
 };
 
 class BudgetEntryService extends HttpService {
