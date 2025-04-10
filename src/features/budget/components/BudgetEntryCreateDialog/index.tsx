@@ -39,6 +39,7 @@ import { TagHttpServiceInstance, TagType } from '@/features/tag/http/TagHttpServ
 const budgetEntryCreateSchema = z.object({
   description: z.string().max(40, 'A descrição deve ter no máximo 40 caracteres'),
   amount_micro: z.number(),
+  month_year: z.string().regex(/^(0[1-9]|1[0-2])\/\d{4}$/, 'Formato inválido. Use MM/AAAA'),
   type: z.enum(['income', 'expense']),
   tags: z.array(z.number().int()),
 });
@@ -66,11 +67,31 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
     setBudgetId: (newBudgetId: number) => setBudgetId(newBudgetId),
   }));
 
+  function formatMonthYear(input: string): string {
+    const onlyNumbers = input.replace(/\D/g, '');
+    const month = onlyNumbers.slice(0, 2);
+    const year = onlyNumbers.slice(2, 6);
+
+    let formatted = month;
+    if (year.length) {
+      formatted += `/${year}`;
+    }
+
+    return formatted;
+  }
+
   const budgetMutation = useMutation({
     mutationFn: async (data: BudgetEntryCreateData) => {
       if (budgetId == null) return Promise.resolve(null);
 
-      return budgetEntryHttpServiceInstance.createBudgetEntry(budgetId, data);
+      const [month, year] = data.month_year.split('/').map(Number);
+
+      return budgetEntryHttpServiceInstance.createBudgetEntry(budgetId, {
+        ...data,
+        amount_micro: Math.round(data.amount_micro * 100),
+        month,
+        year,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['budgetsEntryExpense', 1] });
@@ -81,17 +102,14 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
 
       toast.success('Entrada criada com sucesso!');
     },
-    onError: () => {},
+    onError: () => {
+      toast.error('Erro ao criar entrada');
+    },
   });
 
   const onSubmit = useCallback(
     (data: BudgetEntryCreateData) => {
-      const convertedData = {
-        ...data,
-        amount_micro: Math.round(data.amount_micro * 100),
-      };
-
-      budgetMutation.mutate(convertedData);
+      budgetMutation.mutate(data);
     },
     [budgetMutation],
   );
@@ -135,6 +153,23 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
                   <FormLabel>Valor</FormLabel>
                   <FormControl>
                     <CurrencyInput form={form} placeholder="Ex: R$100,00" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="month_year"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mês/Ano</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Ex: 01/2025"
+                      {...field}
+                      onChange={(e) => field.onChange(formatMonthYear(e.target.value))}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
