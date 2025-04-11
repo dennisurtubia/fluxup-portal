@@ -51,7 +51,7 @@ export function AppSidebar({ menuItems = [], ...props }: AppSidebarProps) {
       </SidebarContent>
       <SidebarRail />
       <SidebarFooter>
-        <SidebarUser user={{ email: user?.sub || '' }} />
+        <SidebarUser user={{ username: user?.username || '' }} />
       </SidebarFooter>
     </Sidebar>
   );

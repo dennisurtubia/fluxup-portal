@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { jwtDecode } from 'jwt-decode';
+import { jwtDecode, JwtPayload } from 'jwt-decode';
 import { Eye, EyeOff } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -14,6 +14,10 @@ import Logo from '@/assets/fluxup.svg';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+
+type JwtDecryptedPayload = {
+  username: string;
+} & JwtPayload;
 
 const loginSchema = z.object({
   username: z.string().min(1, 'E-mail obrigatório').email('E-mail inválido'),
@@ -40,8 +44,13 @@ const LoginPage = () => {
   const loginMutation = useMutation({
     mutationFn: (data: LoginData) => authServiceHttpServiceInstance.login(data),
     onSuccess: (response) => {
-      toast(`Bem-vindo(a), ${jwtDecode(response.access_token).sub}`);
+      const decodedToken = jwtDecode<JwtDecryptedPayload>(response.access_token);
+      const username = decodedToken.username;
+
+      toast(`Bem-vindo(a), ${username}`);
+
       const token = response.access_token;
+
       localStorage.setItem('token', token);
       navigate('/app');
     },
