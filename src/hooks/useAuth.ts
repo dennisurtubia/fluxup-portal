@@ -5,10 +5,12 @@ import { isTokenValid } from '@/lib/auth';
 
 type UserType = {
   sub?: string;
+  username?: string;
 };
 
 type DecodedToken = {
   sub: string;
+  username: string;
 };
 
 const useAuth = () => {
@@ -26,6 +28,7 @@ const useAuth = () => {
       const decoded: DecodedToken = jwtDecode(token);
       return {
         sub: decoded.sub,
+        username: decoded.username,
       };
     } catch (error: unknown) {
       throw new Error(`Invalid token: ${error}`);

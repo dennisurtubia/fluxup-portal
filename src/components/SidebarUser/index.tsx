@@ -1,8 +1,8 @@
-import { LogOutIcon, MoreVerticalIcon, UserCircleIcon } from 'lucide-react';
-import { useCallback } from 'react';
+import { LogOutIcon, MoreVerticalIcon } from 'lucide-react';
+import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Avatar } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,13 +20,26 @@ import {
 
 type SidebarUserProps = {
   user: {
-    email: string;
+    username: string;
   };
 };
 
 export function SidebarUser({ user }: SidebarUserProps) {
   const { isMobile } = useSidebar();
   const navigate = useNavigate();
+
+  const initialsParse = useMemo(() => {
+    const name = user.username;
+
+    if (!name) return;
+
+    const parts = name.trim().split(/\s+/);
+
+    const firstLetter = parts[0]?.[0] || '';
+    const lastLetter = parts.length > 1 ? parts[parts.length - 1][0] : '';
+
+    return (firstLetter + lastLetter).toUpperCase();
+  }, [user.username]);
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem('token');
@@ -43,12 +56,10 @@ export function SidebarUser({ user }: SidebarUserProps) {
               className="data-[state=open]:bg-sidebar-accent
               data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8 rounded-lg grayscale items-center justify-center">
-                <UserCircleIcon className="h-5 w-5" />
+              <Avatar className="h-8 w-8 flex rounded-lg grayscale items-center justify-center">
+                <AvatarFallback>{initialsParse}</AvatarFallback>
               </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate text-xs text-muted-foreground">{user.email}</span>
-              </div>
+              <p>{user.username}</p>
               <MoreVerticalIcon className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
@@ -61,11 +72,9 @@ export function SidebarUser({ user }: SidebarUserProps) {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg items-center justify-center">
-                  <UserCircleIcon className="h-5 w-5" />
+                  <AvatarFallback>{initialsParse}</AvatarFallback>
                 </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate text-xs text-muted-foreground">{user.email}</span>
-                </div>
+                <p>{user.username}</p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
