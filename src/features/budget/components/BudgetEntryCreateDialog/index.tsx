@@ -26,6 +26,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { MonthSelect } from '@/components/ui/month_select';
 import { MultiSelect } from '@/components/ui/multi-select';
 import {
   Select,
@@ -38,8 +39,8 @@ import { TagHttpServiceInstance, TagType } from '@/features/tag/http/TagHttpServ
 
 const budgetEntryCreateSchema = z.object({
   description: z.string().max(40, 'A descrição deve ter no máximo 40 caracteres'),
-  amount_micro: z.number(),
-  month_year: z.string().regex(/^(0[1-9]|1[0-2])\/\d{4}$/, 'Formato inválido. Use MM/AAAA'),
+  amount: z.number(),
+  month: z.string(),
   type: z.enum(['income', 'expense']),
   tags: z.array(z.number().int()),
 });
@@ -48,6 +49,8 @@ export type BudgetEntryCreateDialogRef = {
   open: () => void;
   close: () => void;
   setBudgetId: (_: number) => void;
+  setInitialMonth: (_: string) => void;
+  setLastMonth: (_: string) => void;
 };
 
 type BudgetEntryCreateData = z.infer<typeof budgetEntryCreateSchema>;
@@ -55,6 +58,8 @@ type BudgetEntryCreateData = z.infer<typeof budgetEntryCreateSchema>;
 const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) => {
   const [open, setOpen] = useState(false);
   const [budgetId, setBudgetId] = useState<number | null>(null);
+  const [initialMonth, setInitialMonth] = useState<string | null>(null);
+  const [lastMonth, setLastMonth] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const form = useForm<BudgetEntryCreateData>({
@@ -65,32 +70,17 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
     open: () => setOpen(true),
     close: () => setOpen(false),
     setBudgetId: (newBudgetId: number) => setBudgetId(newBudgetId),
+    setInitialMonth: (initialMonth: string) => setInitialMonth(initialMonth),
+    setLastMonth: (lastMonth: string) => setLastMonth(lastMonth),
   }));
-
-  function formatMonthYear(input: string): string {
-    const onlyNumbers = input.replace(/\D/g, '');
-    const month = onlyNumbers.slice(0, 2);
-    const year = onlyNumbers.slice(2, 6);
-
-    let formatted = month;
-    if (year.length) {
-      formatted += `/${year}`;
-    }
-
-    return formatted;
-  }
 
   const budgetMutation = useMutation({
     mutationFn: async (data: BudgetEntryCreateData) => {
       if (budgetId == null) return Promise.resolve(null);
 
-      const [month, year] = data.month_year.split('/').map(Number);
-
       return budgetEntryHttpServiceInstance.createBudgetEntry(budgetId, {
         ...data,
-        amount_micro: Math.round(data.amount_micro * 100),
-        month,
-        year,
+        month: Number(data.month),
       });
     },
     onSuccess: () => {
@@ -123,6 +113,16 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
     },
   });
 
+  const getMonthRange = useCallback(() => {
+    if (initialMonth && lastMonth) {
+      return {
+        start: initialMonth.split('-')[1],
+        end: lastMonth.split('-')[1],
+      };
+    }
+    return undefined;
+  }, [initialMonth, lastMonth]);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
@@ -147,7 +147,7 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
             />
             <FormField
               control={form.control}
-              name="amount_micro"
+              name="amount"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Valor</FormLabel>
@@ -160,22 +160,17 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
             />
             <FormField
               control={form.control}
-              name="month_year"
+              name="month"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Mês/Ano</FormLabel>
+                  <FormLabel>Mês</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Ex: 01/2025"
-                      {...field}
-                      onChange={(e) => field.onChange(formatMonthYear(e.target.value))}
-                    />
+                    <MonthSelect {...field} range={getMonthRange()} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="type"
@@ -197,7 +192,6 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="tags"
@@ -216,7 +210,6 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
                 </FormItem>
               )}
             />
-
             <DialogFooter>
               <Button type="submit">Salvar</Button>
             </DialogFooter>

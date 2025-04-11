@@ -23,7 +23,7 @@ export const BudgetEntriesIncomeColumns: ColumnDef<BudgetEntryType>[] = [
     cell: ({ row }) => <div className="font-medium">{row.getValue('description')}</div>,
   },
   {
-    accessorKey: 'amount_micro',
+    accessorKey: 'amount',
     header: ({ column }) => {
       return (
         <Button
@@ -36,8 +36,8 @@ export const BudgetEntriesIncomeColumns: ColumnDef<BudgetEntryType>[] = [
       );
     },
     cell: ({ row }) => {
-      const amount = row.getValue('amount_micro') as number;
-      const formattedAmount = (amount / 100).toLocaleString('pt-BR', {
+      const amount = row.getValue('amount') as number;
+      const formattedAmount = amount.toLocaleString('pt-BR', {
         style: 'currency',
         currency: 'BRL',
       });

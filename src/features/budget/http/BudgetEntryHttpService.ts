@@ -3,22 +3,20 @@ import { HttpService } from '@/http/HttpService';
 
 export type BudgetEntryBodyType = {
   description: string;
-  amount_micro: number;
+  amount: number;
   type: 'income' | 'expense';
   tags: number[];
-  year: number;
   month: number;
 };
 
 export type BudgetEntryType = {
   id: number;
   description: string;
-  amount_micro: number;
+  amount: number;
   type: 'income' | 'expense';
   tags: TagType[];
   created_at: string;
   updated_at: string;
-  year: number;
   month: number;
 };
 
