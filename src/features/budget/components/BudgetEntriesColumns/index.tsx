@@ -6,6 +6,7 @@ import { BudgetEntryType } from '../../http/BudgetEntryHttpService';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TagType } from '@/features/tag/http/TagHttpService';
+import { getMonthName } from '@/utils/getMonthName';
 export const BudgetEntriesIncomeColumns: ColumnDef<BudgetEntryType>[] = [
   {
     accessorKey: 'description',
@@ -61,6 +62,25 @@ export const BudgetEntriesIncomeColumns: ColumnDef<BudgetEntryType>[] = [
       const type = row.getValue('type') as string;
       const displayType = type === 'income' ? 'Receita' : 'Despesa';
       return <div className="font-medium">{displayType}</div>;
+    },
+  },
+  {
+    accessorKey: 'month',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Mês
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const monthNumber = Number(row.getValue('month'));
+      const monthName = getMonthName(monthNumber);
+      return <div className="font-medium">{monthName}</div>;
     },
   },
   {
