@@ -7,16 +7,30 @@ import { BudgetType } from '../../http/BudgetHttpService';
 
 import { Button } from '@/components/ui/button';
 
-const NavigateButton: React.FC<{ rowId: string; name: string }> = ({ rowId, name }) => {
+type BudgetDataColumnsProps = {
+  rowId: string;
+  name: string;
+  start_date: string;
+  end_date: string;
+};
+
+const NavigateButton: React.FC<BudgetDataColumnsProps> = ({
+  rowId,
+  name,
+  start_date,
+  end_date,
+}) => {
   const navigate = useNavigate();
 
   const handleNavigate = useCallback(() => {
     navigate(`/app/budgets/${rowId}`, {
       state: {
         name: name,
+        initialMonth: start_date,
+        lastMonth: end_date,
       },
     });
-  }, [navigate, rowId, name]);
+  }, [navigate, rowId, name, start_date, end_date]);
 
   return (
     <Button variant="outline" size="sm" onClick={handleNavigate}>
@@ -99,7 +113,12 @@ export const BudgetDataColumns: ColumnDef<BudgetType>[] = [
 
       return (
         <div className="flex justify-end">
-          <NavigateButton rowId={myRow.id.toString()} name={myRow.name} />
+          <NavigateButton
+            rowId={myRow.id.toString()}
+            name={myRow.name}
+            start_date={myRow.start_date}
+            end_date={myRow.end_date}
+          />
         </div>
       );
     },

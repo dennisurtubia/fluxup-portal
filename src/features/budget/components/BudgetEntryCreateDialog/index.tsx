@@ -26,6 +26,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { MonthSelect } from '@/components/ui/month-select';
 import { MultiSelect } from '@/components/ui/multi-select';
 import {
   Select,
@@ -38,7 +39,8 @@ import { TagHttpServiceInstance, TagType } from '@/features/tag/http/TagHttpServ
 
 const budgetEntryCreateSchema = z.object({
   description: z.string().max(40, 'A descrição deve ter no máximo 40 caracteres'),
-  amount_micro: z.number(),
+  amount: z.number(),
+  month: z.string(),
   type: z.enum(['income', 'expense']),
   tags: z.array(z.number().int()),
 });
@@ -47,6 +49,8 @@ export type BudgetEntryCreateDialogRef = {
   open: () => void;
   close: () => void;
   setBudgetId: (_: number) => void;
+  setInitialMonth: (_: string) => void;
+  setLastMonth: (_: string) => void;
 };
 
 type BudgetEntryCreateData = z.infer<typeof budgetEntryCreateSchema>;
@@ -54,6 +58,8 @@ type BudgetEntryCreateData = z.infer<typeof budgetEntryCreateSchema>;
 const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) => {
   const [open, setOpen] = useState(false);
   const [budgetId, setBudgetId] = useState<number | null>(null);
+  const [initialMonth, setInitialMonth] = useState<string | null>(null);
+  const [lastMonth, setLastMonth] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const form = useForm<BudgetEntryCreateData>({
@@ -64,13 +70,18 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
     open: () => setOpen(true),
     close: () => setOpen(false),
     setBudgetId: (newBudgetId: number) => setBudgetId(newBudgetId),
+    setInitialMonth: (initialMonth: string) => setInitialMonth(initialMonth),
+    setLastMonth: (lastMonth: string) => setLastMonth(lastMonth),
   }));
 
   const budgetMutation = useMutation({
     mutationFn: async (data: BudgetEntryCreateData) => {
       if (budgetId == null) return Promise.resolve(null);
 
-      return budgetEntryHttpServiceInstance.createBudgetEntry(budgetId, data);
+      return budgetEntryHttpServiceInstance.createBudgetEntry(budgetId, {
+        ...data,
+        month: Number(data.month),
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['budgetsEntryExpense', 1] });
@@ -81,17 +92,14 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
 
       toast.success('Entrada criada com sucesso!');
     },
-    onError: () => {},
+    onError: () => {
+      toast.error('Erro ao criar entrada');
+    },
   });
 
   const onSubmit = useCallback(
     (data: BudgetEntryCreateData) => {
-      const convertedData = {
-        ...data,
-        amount_micro: Math.round(data.amount_micro * 100),
-      };
-
-      budgetMutation.mutate(convertedData);
+      budgetMutation.mutate(data);
     },
     [budgetMutation],
   );
@@ -104,6 +112,16 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
       return response;
     },
   });
+
+  const getMonthRange = useCallback(() => {
+    if (initialMonth && lastMonth) {
+      return {
+        start: initialMonth.split('-')[1],
+        end: lastMonth.split('-')[1],
+      };
+    }
+    return undefined;
+  }, [initialMonth, lastMonth]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -129,7 +147,7 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
             />
             <FormField
               control={form.control}
-              name="amount_micro"
+              name="amount"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Valor</FormLabel>
@@ -140,7 +158,19 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
                 </FormItem>
               )}
             />
-
+            <FormField
+              control={form.control}
+              name="month"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mês</FormLabel>
+                  <FormControl>
+                    <MonthSelect {...field} range={getMonthRange()} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="type"
@@ -162,7 +192,6 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="tags"
@@ -181,7 +210,6 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
                 </FormItem>
               )}
             />
-
             <DialogFooter>
               <Button type="submit">Salvar</Button>
             </DialogFooter>
