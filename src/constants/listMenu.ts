@@ -1,4 +1,4 @@
-import { Home, Banknote, Tag } from 'lucide-react';
+import { Home, Banknote, Tag, Handshake } from 'lucide-react';
 
 export type MenuItem = {
   title: string;
@@ -26,6 +26,12 @@ export function getMenuList(pathname: string): MenuItem[] {
       url: '/app/tags',
       isActive: pathname === '/app/tags',
       icon: Tag,
+    },
+    {
+      title: 'Parceiros',
+      url: '/app/partners',
+      isActive: pathname === '/app/partners',
+      icon: Handshake,
     },
   ];
 }
