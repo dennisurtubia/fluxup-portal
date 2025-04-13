@@ -26,7 +26,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { MonthSelect } from '@/components/ui/month_select';
+import { MonthSelect } from '@/components/ui/month-select';
 import { MultiSelect } from '@/components/ui/multi-select';
 import {
   Select,
