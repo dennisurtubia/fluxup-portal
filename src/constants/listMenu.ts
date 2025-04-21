@@ -29,8 +29,8 @@ export function getMenuList(pathname: string): MenuItem[] {
     },
     {
       title: 'Parceiros',
-      url: '/app/partners',
-      isActive: pathname === '/app/partners',
+      url: '/app/parties',
+      isActive: pathname === '/app/parties',
       icon: Handshake,
     },
   ];

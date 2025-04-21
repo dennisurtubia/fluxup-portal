@@ -5,7 +5,7 @@ import AppLayout from '../layouts/AppLayout';
 import { budgetsRouter } from '@/features/budget/routes';
 import { homeRoutes } from '@/features/home/routes';
 import { authRoutes } from '@/features/login/routes';
-import { partnersRoutes } from '@/features/partner/routes';
+import { partieRoutes } from '@/features/partie/routes';
 import { tagsRouter } from '@/features/tag/routes';
 import AuthGuard from '@/guards/AuthGuard';
 import useAuth from '@/hooks/useAuth';
@@ -13,7 +13,7 @@ import useAuth from '@/hooks/useAuth';
 const AppRouter = () => {
   const { isAuthenticated } = useAuth();
 
-  const routers = [...homeRoutes, ...budgetsRouter, ...tagsRouter, ...partnersRoutes];
+  const routers = [...homeRoutes, ...budgetsRouter, ...tagsRouter, ...partieRoutes];
 
   const routes = useRoutes([
     {
