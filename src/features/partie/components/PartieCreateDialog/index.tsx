@@ -26,9 +26,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { formatDocument } from '@/utils/formatDocument';
-import { formatPhone } from '@/utils/formatPhone';
-import { formatCep } from '@/utils/formatZipCode';
+import { formatDocument } from '@/utils/mask/formaDocument';
+import { formatPhone } from '@/utils/mask/formatPhone';
+import { formatZipCode } from '@/utils/mask/formatZipCode';
 
 const personalSchema = z.object({
   name: z
@@ -214,13 +214,14 @@ const PartieCreateDialog = forwardRef<PartieCreateDialogRef>((_, ref) => {
                     <FormLabel>Telefone</FormLabel>
                     <FormControl>
                       <Input
-                        {...field}
+                        value={formatPhone(field.value || '')}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/\D/g, '');
+                          field.onChange(raw);
+                        }}
+                        placeholder="(00) 00000-0000"
                         inputMode="numeric"
                         maxLength={15}
-                        placeholder="(00) 00000-0000"
-                        onChange={(e) => field.onChange(formatPhone(e.target.value))}
-                        onBlur={field.onBlur}
-                        value={field.value || ''}
                       />
                     </FormControl>
                     <FormMessage />
@@ -235,14 +236,14 @@ const PartieCreateDialog = forwardRef<PartieCreateDialogRef>((_, ref) => {
                     <FormLabel>CPF/CNPJ</FormLabel>
                     <FormControl>
                       <Input
-                        {...field}
+                        value={formatDocument(field.value || '')}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/\D/g, '');
+                          field.onChange(raw);
+                        }}
                         inputMode="numeric"
                         maxLength={18}
-                        placeholder="000.000.000-00"
-                        onChange={(e) => {
-                          const formatted = formatDocument(e.target.value);
-                          field.onChange(formatted);
-                        }}
+                        placeholder="000.000.000-00 ou 00.000.000/0000-00"
                       />
                     </FormControl>
                     <FormMessage />
@@ -269,13 +270,15 @@ const PartieCreateDialog = forwardRef<PartieCreateDialogRef>((_, ref) => {
                     <FormControl>
                       <Input
                         {...field}
+                        value={formatZipCode(field.value || '')}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/\D/g, '');
+                          field.onChange(raw);
+                        }}
                         inputMode="numeric"
                         maxLength={9}
-                        placeholder="00000-000"
-                        onChange={(e) => field.onChange(formatCep(e.target.value))}
-                        onBlur={field.onBlur}
-                        value={field.value || ''}
                         disabled={isLoading}
+                        placeholder="00000-000"
                       />
                     </FormControl>
                     <FormMessage />

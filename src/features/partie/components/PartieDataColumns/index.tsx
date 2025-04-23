@@ -4,10 +4,20 @@ import { ArrowUpDown } from 'lucide-react';
 import { PartieType } from '../../http/PartieHttpService';
 
 import { Button } from '@/components/ui/button';
-import { formatDocument } from '@/utils/formatDocument';
-import { formatPhone } from '@/utils/formatPhone';
+import { formatDocument } from '@/utils/mask/formaDocument';
+import { formatPhone } from '@/utils/mask/formatPhone';
 
 export const PartieDataColumns: ColumnDef<PartieType>[] = [
+  {
+    accessorKey: 'name',
+    header: ({ column }) => (
+      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+        Nome
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => <div className="font-medium">{row.getValue('name')}</div>,
+  },
   {
     accessorKey: 'document',
     header: ({ column }) => (

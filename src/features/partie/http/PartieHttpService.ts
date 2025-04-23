@@ -2,6 +2,7 @@ import { HttpService } from '@/http/HttpService';
 
 export type PartieType = {
   id: number;
+  name: string;
   document: string;
   phone_number: string;
   email: string;
