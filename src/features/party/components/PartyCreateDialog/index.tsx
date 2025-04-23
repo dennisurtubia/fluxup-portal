@@ -131,7 +131,7 @@ const PartyCreateDialog = forwardRef<PartyCreateDialogRef>((_, ref) => {
   });
 
   const queryClient = useQueryClient();
-  const partieMutation = useMutation({
+  const partyMutation = useMutation({
     mutationFn: (data: { address: AddressData } & PersonalData) =>
       partiesHttpServiceInstance.createParty(data),
     onSuccess: () => {
@@ -162,9 +162,9 @@ const PartyCreateDialog = forwardRef<PartyCreateDialogRef>((_, ref) => {
       }
       const personalData = personalForm.getValues();
       const payload = { ...personalData, address: addressData };
-      partieMutation.mutate(payload);
+      partyMutation.mutate(payload);
     },
-    [personalForm, partieMutation],
+    [personalForm, partyMutation],
   );
 
   return (
@@ -381,8 +381,8 @@ const PartyCreateDialog = forwardRef<PartyCreateDialogRef>((_, ref) => {
                 <Button type="button" variant="outline" onClick={handleBack}>
                   Voltar
                 </Button>
-                <Button type="submit" disabled={isLoading || partieMutation.isPending}>
-                  {isLoading || partieMutation.isPending ? 'Carregando…' : 'Salvar'}
+                <Button type="submit" disabled={isLoading || partyMutation.isPending}>
+                  {isLoading || partyMutation.isPending ? 'Carregando…' : 'Salvar'}
                 </Button>
               </DialogFooter>
             </form>
