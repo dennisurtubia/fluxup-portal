@@ -135,7 +135,7 @@ const PartyCreateDialog = forwardRef<PartyCreateDialogRef>((_, ref) => {
     mutationFn: (data: { address: AddressData } & PersonalData) =>
       partiesHttpServiceInstance.createParty(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['partie', 1] });
+      queryClient.invalidateQueries({ queryKey: ['parties', 1] });
       setOpen(false);
       personalForm.reset();
       addressForm.reset();
