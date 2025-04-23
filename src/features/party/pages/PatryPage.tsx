@@ -3,7 +3,7 @@ import { useCallback, useRef } from 'react';
 
 import PartyCreateDialog, { PartyCreateDialogRef } from '../components/PartyCreateDialog';
 import { PartyDataColumns } from '../components/PartyDataColumns';
-import { partiesHttpServiceInstance, PartieType } from '../http/PartyHttpService';
+import { partiesHttpServiceInstance, PartyType } from '../http/PartyHttpService';
 
 import { DataTable } from '@/components/DataTable';
 import LoadingScreen from '@/components/Loading';
@@ -17,7 +17,7 @@ export default function PartiePage() {
     data: parties,
     isLoading,
     isError,
-  } = useQuery<PartieType[] | undefined>({
+  } = useQuery<PartyType[] | undefined>({
     queryKey: ['parties', 1],
     retry: false,
     queryFn: async () => {
