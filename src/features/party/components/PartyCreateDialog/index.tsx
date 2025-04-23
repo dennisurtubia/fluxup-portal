@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { z } from 'zod';
 
-import { partieHttpServiceInstance } from '../../http/PartieHttpService';
+import { partiesHttpServiceInstance } from '../../http/PartyHttpService';
 import { zipCodeHttpServiceInstance, ZipCodeType } from '../../http/ZipCodeHttpService';
 
 import { Button } from '@/components/ui/button';
@@ -88,9 +88,9 @@ const addressSchema = z.object({
 });
 type AddressData = z.infer<typeof addressSchema>;
 
-export type PartieCreateDialogRef = { open(): void; close(): void };
+export type PartyCreateDialogRef = { open(): void; close(): void };
 
-const PartieCreateDialog = forwardRef<PartieCreateDialogRef>((_, ref) => {
+const PartyCreateDialog = forwardRef<PartyCreateDialogRef>((_, ref) => {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
 
@@ -133,7 +133,7 @@ const PartieCreateDialog = forwardRef<PartieCreateDialogRef>((_, ref) => {
   const queryClient = useQueryClient();
   const partieMutation = useMutation({
     mutationFn: (data: { address: AddressData } & PersonalData) =>
-      partieHttpServiceInstance.createParties(data),
+      partiesHttpServiceInstance.createParty(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['partie', 1] });
       setOpen(false);
@@ -393,4 +393,4 @@ const PartieCreateDialog = forwardRef<PartieCreateDialogRef>((_, ref) => {
   );
 });
 
-export default PartieCreateDialog;
+export default PartyCreateDialog;

@@ -1,6 +1,6 @@
 import { HttpService } from '@/http/HttpService';
 
-export type PartieType = {
+export type PartyType = {
   id: number;
   name: string;
   document: string;
@@ -10,7 +10,7 @@ export type PartieType = {
   updated_at: string;
 };
 
-export type PartieDataType = {
+export type PartyDataType = {
   name: string;
   document: string;
   phone_number: string;
@@ -29,12 +29,12 @@ export type PartieDataType = {
 
 class PartyService extends HttpService {
   async getParties() {
-    return this.get<PartieType[]>('/parties');
+    return this.get<PartyType[]>('/parties');
   }
 
-  async createParties(data: PartieDataType) {
+  async createParty(data: PartyDataType) {
     return this.post('/parties', data);
   }
 }
 
-export const partieHttpServiceInstance = new PartyService();
+export const partiesHttpServiceInstance = new PartyService();

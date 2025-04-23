@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useRef } from 'react';
 
-import PartieCreateDialog, { PartieCreateDialogRef } from '../components/PartieCreateDialog';
-import { PartieDataColumns } from '../components/PartieDataColumns';
-import { partieHttpServiceInstance, PartieType } from '../http/PartieHttpService';
+import PartyCreateDialog, { PartyCreateDialogRef } from '../components/PartyCreateDialog';
+import { PartyDataColumns } from '../components/PartyDataColumns';
+import { partiesHttpServiceInstance, PartieType } from '../http/PartyHttpService';
 
 import { DataTable } from '@/components/DataTable';
 import LoadingScreen from '@/components/Loading';
@@ -11,17 +11,17 @@ import { Button } from '@/components/ui/button';
 import Title from '@/components/ui/title';
 
 export default function PartiePage() {
-  const dialogRef = useRef<PartieCreateDialogRef>(null);
+  const dialogRef = useRef<PartyCreateDialogRef>(null);
 
   const {
-    data: tags,
+    data: parties,
     isLoading,
     isError,
   } = useQuery<PartieType[] | undefined>({
-    queryKey: ['partie', 1],
+    queryKey: ['parties', 1],
     retry: false,
     queryFn: async () => {
-      const response = await partieHttpServiceInstance.getParties();
+      const response = await partiesHttpServiceInstance.getParties();
 
       return response;
     },
@@ -52,10 +52,10 @@ export default function PartiePage() {
           Novo Parceiro
         </Button>
 
-        <PartieCreateDialog ref={dialogRef} />
+        <PartyCreateDialog ref={dialogRef} />
       </div>
 
-      <DataTable columns={PartieDataColumns} data={tags || []} />
+      <DataTable columns={PartyDataColumns} data={parties || []} />
     </div>
   );
 }

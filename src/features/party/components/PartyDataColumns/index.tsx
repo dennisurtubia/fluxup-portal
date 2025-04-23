@@ -1,13 +1,13 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 
-import { PartieType } from '../../http/PartieHttpService';
+import { PartyType } from '../../http/PartyHttpService';
 
 import { Button } from '@/components/ui/button';
 import { formatDocument } from '@/utils/mask/formaDocument';
 import { formatPhone } from '@/utils/mask/formatPhone';
 
-export const PartieDataColumns: ColumnDef<PartieType>[] = [
+export const PartyDataColumns: ColumnDef<PartyType>[] = [
   {
     accessorKey: 'name',
     header: ({ column }) => (
