@@ -18,14 +18,16 @@ export default function BudgetEntriesPage() {
   const { id } = params;
 
   const location = useLocation();
-  const { name } = location.state || {};
+  const { name, initialMonth, lastMonth } = location.state || {};
 
   const dialogRef = useRef<BudgetEntryCreateDialogRef>(null);
 
   const handleCreateBudgetEntry = useCallback(() => {
     dialogRef.current?.setBudgetId(Number(id));
     dialogRef.current?.open();
-  }, [id]);
+    dialogRef.current?.setInitialMonth(initialMonth);
+    dialogRef.current?.setLastMonth(lastMonth);
+  }, [id, initialMonth, lastMonth]);
 
   return (
     <div className="h-full w-full">
