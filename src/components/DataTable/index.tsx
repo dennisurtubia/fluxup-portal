@@ -11,7 +11,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { ChevronDown } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -63,6 +63,26 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
     },
   });
 
+  const handleTranslateColumns = useCallback((columnId: string) => {
+    const columnsMap: Record<string, string> = {
+      description: 'Descrição',
+      amount: 'Valor',
+      type: 'Tipo',
+      month: 'Mês',
+      year: 'Ano',
+      tags: 'Agrupadores',
+      name: 'Nome',
+      document: 'CPF/CNPJ',
+      date: 'Data',
+      start_date: 'Data de Início',
+      end_date: 'Data de Término',
+      phone_number: 'Telefone',
+      address: 'Endereço',
+      email: 'Email',
+    };
+    return columnsMap[columnId] || columnId;
+  }, []);
+
   return (
     <div>
       <div className="flex items-center py-4 gap-2">
@@ -86,11 +106,10 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                 return (
                   <DropdownMenuCheckboxItem
                     key={column.id}
-                    className="capitalize"
                     checked={column.getIsVisible()}
                     onCheckedChange={(value) => column.toggleVisibility(!!value)}
                   >
-                    {column.id}
+                    {handleTranslateColumns(column.id)}
                   </DropdownMenuCheckboxItem>
                 );
               })}

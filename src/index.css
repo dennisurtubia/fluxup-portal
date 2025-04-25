@@ -37,6 +37,15 @@
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.705 0.015 286.067);
+  --toastify-color-progress-light: linear-gradient(
+    to right,
+    #d1d1d6,
+    #b8b8b8,
+    #9e9e9e,
+    #7f7f7f,
+    #616161,
+    #494949
+  );
 }
 
 .dark {

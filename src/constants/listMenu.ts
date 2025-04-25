@@ -22,7 +22,7 @@ export function getMenuList(pathname: string): MenuItem[] {
       icon: Banknote,
     },
     {
-      title: 'Categorias',
+      title: 'Agrupadores',
       url: '/app/tags',
       isActive: pathname === '/app/tags',
       icon: Tag,

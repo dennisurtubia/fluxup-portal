@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TagType } from '@/features/tag/http/TagHttpService';
 import { getMonthName } from '@/utils/getMonthName';
+
 export const BudgetEntriesIncomeColumns: ColumnDef<BudgetEntryType>[] = [
   {
     accessorKey: 'description',
@@ -87,7 +88,7 @@ export const BudgetEntriesIncomeColumns: ColumnDef<BudgetEntryType>[] = [
     accessorKey: 'tags',
     header: ({ column }) => (
       <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-        Tags
+        Agrupadores
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),

@@ -47,7 +47,9 @@ const LoginPage = () => {
       const decodedToken = jwtDecode<JwtDecryptedPayload>(response.access_token);
       const username = decodedToken.username;
 
-      toast(`Bem-vindo(a), ${username}`);
+      toast(`Bem-vindo(a), ${username}`, {
+        autoClose: 1500,
+      });
 
       const token = response.access_token;
 
