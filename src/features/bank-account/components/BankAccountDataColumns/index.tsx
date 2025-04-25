@@ -1,6 +1,8 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 
+import BancoDoBrasilLogo from '../../../../assets/bb-logo.svg';
+import CresolLogo from '../../../../assets/cresol-logo.svg';
 import { BankAccountType } from '../../http/BankAcoountHttpService';
 
 import { Button } from '@/components/ui/button';
@@ -71,7 +73,17 @@ export const BankAccountDataColumns: ColumnDef<BankAccountType>[] = [
     },
     cell: ({ row }) => (
       <div className="font-medium">
-        {bankAccountNameMap[row.getValue('bank') as BankAccountType['bank']]}
+        {bankAccountNameMap[row.getValue('bank') as BankAccountType['bank']] === 'Cresol' ? (
+          <div className="flex items-center gap-2">
+            <img src={CresolLogo} alt="Cresol" className="w-6 h-6" />
+            {bankAccountNameMap[row.getValue('bank') as BankAccountType['bank']]}
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <img src={BancoDoBrasilLogo} alt="Banco do Brasil" className="w-6 h-6" />
+            {bankAccountNameMap[row.getValue('bank') as BankAccountType['bank']]}
+          </div>
+        )}
       </div>
     ),
   },
