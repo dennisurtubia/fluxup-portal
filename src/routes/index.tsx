@@ -2,6 +2,7 @@ import { Navigate, useRoutes } from 'react-router-dom';
 
 import AppLayout from '../layouts/AppLayout';
 
+import { bankAccountsRouter } from '@/features/bank-account/routes';
 import { budgetsRouter } from '@/features/budget/routes';
 import { homeRoutes } from '@/features/home/routes';
 import { authRoutes } from '@/features/login/routes';
@@ -13,7 +14,13 @@ import useAuth from '@/hooks/useAuth';
 const AppRouter = () => {
   const { isAuthenticated } = useAuth();
 
-  const routers = [...homeRoutes, ...budgetsRouter, ...tagsRouter, ...partiesRoutes];
+  const routers = [
+    ...homeRoutes,
+    ...budgetsRouter,
+    ...tagsRouter,
+    ...partiesRoutes,
+    ...bankAccountsRouter,
+  ];
 
   const routes = useRoutes([
     {
