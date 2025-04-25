@@ -79,6 +79,9 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
       phone_number: 'Telefone',
       address: 'Endereço',
       email: 'Email',
+      number: 'Número',
+      branch_code: 'Agência',
+      bank: 'Banco',
     };
     return columnsMap[columnId] || columnId;
   }, []);
