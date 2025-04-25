@@ -38,7 +38,7 @@ export default function TagPage() {
   if (isError) {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold">Erro ao carregar as tags</h1>
+        <h1 className="text-2xl font-bold">Erro ao carregar os agrupadores</h1>
         <p className="mt-4 text-lg">Tente novamente mais tarde.</p>
       </div>
     );
@@ -47,9 +47,9 @@ export default function TagPage() {
   return (
     <div className="h-full w-full">
       <div className="flex justify-between items-center mb-5">
-        <Title>Categorias</Title>
+        <Title>Agrupadores</Title>
         <Button variant="default" onClick={handleCreateTags}>
-          Criar Categoria
+          Criar agrupador
         </Button>
 
         <TagCreateDialog ref={dialogRef} />

@@ -75,8 +75,8 @@ const TagCreateDialog = forwardRef<TagCreateDialogRef>((_, ref) => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Criar nova tag</DialogTitle>
-          <DialogDescription>Preencha os detalhes para criar uma nova tag.</DialogDescription>
+          <DialogTitle>Criar um novo agrupador</DialogTitle>
+          <DialogDescription>Preencha os detalhes para criar um novo agrupador.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -87,7 +87,7 @@ const TagCreateDialog = forwardRef<TagCreateDialogRef>((_, ref) => {
                 <FormItem>
                   <FormLabel>Nome</FormLabel>
                   <FormControl>
-                    <Input placeholder="Ex: Alimentação" {...field} />
+                    <Input placeholder="Ex: Campeonato" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -100,7 +100,7 @@ const TagCreateDialog = forwardRef<TagCreateDialogRef>((_, ref) => {
                 <FormItem>
                   <FormLabel>Descrição</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Descrição breve da categoria" {...field} />
+                    <Textarea placeholder="Descrição breve do agrupador" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

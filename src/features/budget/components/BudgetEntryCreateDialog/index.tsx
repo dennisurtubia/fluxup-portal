@@ -197,13 +197,15 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
               name="tags"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Tags</FormLabel>
+                  <FormLabel>Agrupadores</FormLabel>
                   <FormControl>
                     <MultiSelect
                       options={tags ? tags.map((tag) => ({ value: tag.id, label: tag.name })) : []}
                       selected={field.value}
                       onChange={field.onChange}
-                      placeholder={isLoading ? 'Carregando tags...' : 'Selecione as tags'}
+                      placeholder={
+                        isLoading ? 'Carregando Agrupadores...' : 'Selecione as Agrupadores'
+                      }
                     />
                   </FormControl>
                   <FormMessage />
