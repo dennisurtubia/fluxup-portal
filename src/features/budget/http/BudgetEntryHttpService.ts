@@ -5,8 +5,9 @@ export type BudgetEntryBodyType = {
   description: string;
   amount: number;
   type: 'income' | 'expense';
-  tags: number[];
+  tags?: number[];
   month: number;
+  category_id: number;
 };
 
 export type BudgetEntryType = {

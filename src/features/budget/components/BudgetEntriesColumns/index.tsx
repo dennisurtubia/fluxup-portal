@@ -5,10 +5,29 @@ import { BudgetEntryType } from '../../http/BudgetEntryHttpService';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { CategoryType } from '@/features/categories/http/CategoryHttpService';
 import { TagType } from '@/features/tag/http/TagHttpService';
 import { getMonthName } from '@/utils/getMonthName';
 
 export const BudgetEntriesIncomeColumns: ColumnDef<BudgetEntryType>[] = [
+  {
+    accessorKey: 'category',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Categoria
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const category = row.getValue('category') as CategoryType;
+      return <div className="font-medium">{category.name}</div>;
+    },
+  },
   {
     accessorKey: 'description',
     header: ({ column }) => {

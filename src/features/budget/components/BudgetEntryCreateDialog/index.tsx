@@ -35,6 +35,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { CategoryHttpServiceInstance } from '@/features/categories/http/CategoryHttpService';
 import { TagHttpServiceInstance, TagType } from '@/features/tag/http/TagHttpService';
 
 const budgetEntryCreateSchema = z.object({
@@ -42,7 +43,8 @@ const budgetEntryCreateSchema = z.object({
   amount: z.number(),
   month: z.string(),
   type: z.enum(['income', 'expense']),
-  tags: z.array(z.number().int()),
+  category_id: z.string(),
+  tags: z.array(z.number().int()).optional(),
 });
 
 export type BudgetEntryCreateDialogRef = {
@@ -64,6 +66,10 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
 
   const form = useForm<BudgetEntryCreateData>({
     resolver: zodResolver(budgetEntryCreateSchema),
+    mode: 'onTouched',
+    defaultValues: {
+      description: '',
+    },
   });
 
   useImperativeHandle(ref, () => ({
@@ -80,6 +86,7 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
 
       return budgetEntryHttpServiceInstance.createBudgetEntry(budgetId, {
         ...data,
+        category_id: Number(data.category_id),
         month: Number(data.month),
       });
     },
@@ -113,6 +120,15 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
     },
   });
 
+  const { data: categories } = useQuery<TagType[] | undefined>({
+    queryKey: ['categories', 1],
+    retry: false,
+    queryFn: async () => {
+      const response = await CategoryHttpServiceInstance.getCategories();
+      return response;
+    },
+  });
+
   const getMonthRange = useCallback(() => {
     if (initialMonth && lastMonth) {
       return {
@@ -132,6 +148,32 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="category_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Categoria</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Ex: Alimentação" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories
+                          ? categories.map((category) => (
+                              <SelectItem key={category.name} value={category.id.toString()}>
+                                {category.name}
+                              </SelectItem>
+                            ))
+                          : []}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="description"
@@ -201,7 +243,7 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
                   <FormControl>
                     <MultiSelect
                       options={tags ? tags.map((tag) => ({ value: tag.id, label: tag.name })) : []}
-                      selected={field.value}
+                      selected={field.value || []}
                       onChange={field.onChange}
                       placeholder={
                         isLoading ? 'Carregando Agrupadores...' : 'Selecione as Agrupadores'
