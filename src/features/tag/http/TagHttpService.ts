@@ -23,4 +23,4 @@ class TagHttpService extends HttpService {
   }
 }
 
-export const TagHttpServiceInstance = new TagHttpService();
+export const tagHttpServiceInstance = new TagHttpService();

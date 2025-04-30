@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { z } from 'zod';
 
-import { TagHttpServiceInstance } from '../../http/TagHttpService';
+import { tagHttpServiceInstance } from '../../http/TagHttpService';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -53,7 +53,7 @@ const TagCreateDialog = forwardRef<TagCreateDialogRef>((_, ref) => {
   }));
 
   const TagMutation = useMutation({
-    mutationFn: (data: TagCreateData) => TagHttpServiceInstance.createTag(data),
+    mutationFn: (data: TagCreateData) => tagHttpServiceInstance.createTag(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tags', 1] });
       setOpen(false);

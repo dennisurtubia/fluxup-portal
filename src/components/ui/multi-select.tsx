@@ -33,7 +33,7 @@ function MultiSelect({
 
   return (
     <div className={`relative inline-block ${className}`}>
-      <div className="border rounded-md px-3 py-2 text-sm w-full">
+      <div className="border rounded-md px-3 py-2 text-sm w-full dark:bg-input/30">
         <div className="flex flex-wrap gap-1">
           {selected.map((selectedValue) => {
             const option = options.find((o) => o.value === selectedValue)
@@ -66,7 +66,7 @@ function MultiSelect({
               }, 200)
             }}
             placeholder={selected.length === 0 ? placeholder : undefined}
-            className="flex-1 bg-transparent outline-none placeholder:text-muted-foreground min-w-[120px]"
+            className="flex-1 selection:bg-primary outline-none placeholder:text-muted-foreground min-w-[120px]"
           />
         </div>
       </div>
@@ -87,6 +87,7 @@ function MultiSelect({
             shadow-md
             outline-none
             animate-in
+            max-h-40 overflow-auto
           "
         >
           {selectables.map((option) => (

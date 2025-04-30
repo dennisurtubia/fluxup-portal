@@ -3,7 +3,7 @@ import { useCallback, useRef } from 'react';
 
 import TagCreateDialog, { TagCreateDialogRef } from '../components/TagCreateDialog';
 import { TagDataColumns } from '../components/TagDataColumns';
-import { TagHttpServiceInstance, TagType } from '../http/TagHttpService';
+import { tagHttpServiceInstance, TagType } from '../http/TagHttpService';
 
 import { DataTable } from '@/components/DataTable';
 import LoadingScreen from '@/components/Loading';
@@ -21,7 +21,7 @@ export default function TagPage() {
     queryKey: ['tags', 1],
     retry: false,
     queryFn: async () => {
-      const response = await TagHttpServiceInstance.getTags();
+      const response = await tagHttpServiceInstance.getTags();
 
       return response;
     },
