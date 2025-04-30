@@ -35,8 +35,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CategoryHttpServiceInstance } from '@/features/categories/http/CategoryHttpService';
-import { TagHttpServiceInstance, TagType } from '@/features/tag/http/TagHttpService';
+import {
+  categoryHttpServiceInstance,
+  CategoryType,
+} from '@/features/categories/http/CategoryHttpService';
+import { tagHttpServiceInstance, TagType } from '@/features/tag/http/TagHttpService';
 
 const budgetEntryCreateSchema = z.object({
   description: z.string().max(40, 'A descrição deve ter no máximo 40 caracteres'),
@@ -115,16 +118,16 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
     queryKey: ['tags', 1],
     retry: false,
     queryFn: async () => {
-      const response = await TagHttpServiceInstance.getTags();
+      const response = await tagHttpServiceInstance.getTags();
       return response;
     },
   });
 
-  const { data: categories } = useQuery<TagType[] | undefined>({
+  const { data: categories } = useQuery<CategoryType[] | undefined>({
     queryKey: ['categories', 1],
     retry: false,
     queryFn: async () => {
-      const response = await CategoryHttpServiceInstance.getCategories();
+      const response = await categoryHttpServiceInstance.getCategories();
       return response;
     },
   });

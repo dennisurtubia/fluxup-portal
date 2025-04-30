@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { z } from 'zod';
 
-import { CategoryHttpServiceInstance } from '../../http/CategoryHttpService';
+import { categoryHttpServiceInstance } from '../../http/CategoryHttpService';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -53,7 +53,7 @@ const CategoryCreateDialog = forwardRef<CategoryCreateDialogRef>((_, ref) => {
   }));
 
   const CategoryMutation = useMutation({
-    mutationFn: (data: CategoryCreateData) => CategoryHttpServiceInstance.createCategory(data),
+    mutationFn: (data: CategoryCreateData) => categoryHttpServiceInstance.createCategory(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories', 1] });
       setOpen(false);

@@ -16,6 +16,12 @@ export function getMenuList(pathname: string): MenuItem[] {
       icon: Home,
     },
     {
+      title: 'Fluxos de Caixa',
+      url: '/app/cash-flows',
+      isActive: pathname === '/app/cash-flows',
+      icon: Home,
+    },
+    {
       title: 'Orçamentos',
       url: '/app/budgets',
       isActive: pathname === '/app/budgets',

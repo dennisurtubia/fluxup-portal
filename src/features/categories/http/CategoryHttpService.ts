@@ -23,4 +23,4 @@ class CategoryHttpService extends HttpService {
   }
 }
 
-export const CategoryHttpServiceInstance = new CategoryHttpService();
+export const categoryHttpServiceInstance = new CategoryHttpService();

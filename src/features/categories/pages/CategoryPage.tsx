@@ -3,7 +3,7 @@ import { useCallback, useRef } from 'react';
 
 import CategoryCreateDialog, { CategoryCreateDialogRef } from '../components/CategoryCreateDialog';
 import { CategoryDataColumns } from '../components/CategoryDataColumns';
-import { CategoryHttpServiceInstance, CategoryType } from '../http/CategoryHttpService';
+import { categoryHttpServiceInstance, CategoryType } from '../http/CategoryHttpService';
 
 import { DataTable } from '@/components/DataTable';
 import LoadingScreen from '@/components/Loading';
@@ -21,7 +21,7 @@ export default function CategoryPage() {
     queryKey: ['categories', 1],
     retry: false,
     queryFn: async () => {
-      const response = await CategoryHttpServiceInstance.getCategories();
+      const response = await categoryHttpServiceInstance.getCategories();
 
       return response;
     },
