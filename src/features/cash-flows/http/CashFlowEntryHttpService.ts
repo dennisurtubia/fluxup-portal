@@ -9,7 +9,7 @@ export type CashFlowEntryBodyType = {
   amount: number;
   type: 'income' | 'expense';
   tags?: number[];
-  trasaction_date: string;
+  transaction_date: string;
   category_id: number;
   bank_account_id: number;
   party_id: number;

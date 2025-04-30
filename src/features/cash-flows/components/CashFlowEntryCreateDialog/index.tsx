@@ -93,7 +93,7 @@ const CashFlowEntryCreateDialog = forwardRef<CashFlowEntryCreateDialogRef>((_, r
         category_id: Number(data.category_id),
         bank_account_id: Number(data.bank_account_id),
         party_id: Number(data.party_id),
-        trasaction_date: data.transaction_date.toISOString(),
+        transaction_date: data.transaction_date.toISOString(),
         tags: data.tags,
       });
     },
