@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { cashFlowEntryHttpServiceInstance } from '../../http/CashFlowEntryHttpService';
 
 import { getBankDisplayData } from './utils/bank-utils';
+import { paymentTypeOptions } from './utils/payment_type-utils';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -50,6 +51,7 @@ const cashFlowsEntryCreateSchema = z.object({
   description: z.string().max(40, 'A descrição deve ter no máximo 40 caracteres'),
   amount: z.number({ required_error: 'O valor é obrigatório' }),
   type: z.enum(['income', 'expense']),
+  payment_type: z.enum(['boleto', 'ted', 'pix', 'credit_card', 'debit_card']),
   transaction_date: z.date(),
   tags: z.array(z.number().int()).optional(),
   category_id: z.string(),
@@ -281,6 +283,29 @@ const CashFlowEntryCreateDialog = forwardRef<CashFlowEntryCreateDialogRef>((_, r
                         <SelectContent ref={field.ref}>
                           <SelectItem value="income">Receita</SelectItem>
                           <SelectItem value="expense">Despesa</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="payment_type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Forma de Pagamento</FormLabel>
+                    <FormControl>
+                      <Select onValueChange={field.onChange}>
+                        <SelectTrigger className=" w-full ">
+                          <SelectValue placeholder="Selecione a forma de pagamento" />
+                        </SelectTrigger>
+                        <SelectContent ref={field.ref}>
+                          {paymentTypeOptions.map(([value, label]) => (
+                            <SelectItem key={value} value={value}>
+                              {label}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </FormControl>

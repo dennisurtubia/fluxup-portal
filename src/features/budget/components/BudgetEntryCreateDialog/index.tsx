@@ -249,7 +249,7 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
                       selected={field.value || []}
                       onChange={field.onChange}
                       placeholder={
-                        isLoading ? 'Carregando Agrupadores...' : 'Selecione as Agrupadores'
+                        isLoading ? 'Carregando Agrupadores...' : 'Selecione os Agrupadores'
                       }
                     />
                   </FormControl>
