@@ -3,6 +3,10 @@ import { ArrowUpDown } from 'lucide-react';
 
 import { CashFlowEntryType } from '../../http/CashFlowEntryHttpService';
 import { getBankDisplayData } from '../CashFlowEntryCreateDialog/utils/bank-utils';
+import {
+  PaymentType,
+  paymentTypeLabel,
+} from '../CashFlowEntryCreateDialog/utils/payment_type-utils';
 
 import { Button } from '@/components/ui/button';
 import { BankAccountType } from '@/features/bank-account/http/BankAcoountHttpService';
@@ -94,13 +98,32 @@ export const CashFlowEntryColumns: ColumnDef<CashFlowEntryType>[] = [
     },
     cell: ({ row }) => {
       const bankAccount = row.getValue('bank_account') as BankAccountType;
-      const { logo, label } = getBankDisplayData(bankAccount.bank);
+      const { logo } = getBankDisplayData(bankAccount.bank);
       return (
         <div className="font-medium flex items-center">
           {logo}
-          <span className="ml-2">{label}</span>
+          <span className="ml-2">{bankAccount.name}</span>
         </div>
       );
+    },
+  },
+  {
+    accessorKey: 'payment_type',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Forma de pagamento
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const paymentTypeKey = row.getValue('payment_type') as PaymentType;
+      const paymentType = paymentTypeLabel[paymentTypeKey];
+      return <div className="font-medium">{paymentType}</div>;
     },
   },
   {
