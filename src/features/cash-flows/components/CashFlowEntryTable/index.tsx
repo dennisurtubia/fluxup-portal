@@ -35,7 +35,7 @@ export function CashFlowEntryTable({ cashFlowId }: CashFlowEntryProps) {
   if (isError) {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold">Erro ao carregar os fluxos de caixa</h1>
+        <h1 className="text-2xl font-bold">Erro ao carregar os caixas</h1>
         <p className="mt-4 text-lg">Tente novamente mais tarde.</p>
       </div>
     );
