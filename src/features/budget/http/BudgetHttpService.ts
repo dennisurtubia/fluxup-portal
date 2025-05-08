@@ -17,6 +17,13 @@ export type BudgetDataType = {
   end_date: Date;
 };
 
+export type BudgetCashFlowType = {
+  month: number;
+  total_expenses: number;
+  total_incomes: number;
+  balance: number;
+};
+
 class BudgetHttpService extends HttpService {
   async getBudgets() {
     return this.get<BudgetType[]>('/budgets');
@@ -35,6 +42,10 @@ class BudgetHttpService extends HttpService {
 
   async deleteBudget(id: number) {
     return this.delete(`/budgets/${id}`);
+  }
+
+  async getBudgetCashFlow(id: number) {
+    return this.get<BudgetCashFlowType[]>(`/budgets/${id}/cash-flows`);
   }
 }
 

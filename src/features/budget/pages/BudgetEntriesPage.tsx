@@ -2,14 +2,13 @@ import { useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 
-import { BudgetEntriesExpense } from '../components/BudgetEntriesExpense';
-import { BudgetEntriesIncome } from '../components/BudgetEntriesIncome';
+import { BudgetCashFlowTable } from '../components/BudgetCashFlowTable';
 import BudgetEntryCreateDialog, {
   BudgetEntryCreateDialogRef,
 } from '../components/BudgetEntryCreateDialog';
 
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Title from '@/components/ui/title';
 
 export default function BudgetEntriesPage() {
@@ -39,19 +38,16 @@ export default function BudgetEntriesPage() {
 
         <BudgetEntryCreateDialog ref={dialogRef} />
       </div>
-      <Tabs defaultValue="income" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="income">Receitas</TabsTrigger>
-          <TabsTrigger value="expense">Despesas</TabsTrigger>
-        </TabsList>
 
-        <TabsContent value="income" className="space-y-4">
-          <BudgetEntriesIncome budgetId={Number(id)} />
-        </TabsContent>
-        <TabsContent value="expense" className="space-y-4">
-          <BudgetEntriesExpense budgetId={Number(id)} />
-        </TabsContent>
-      </Tabs>
+      <Card>
+        <CardHeader>
+          <CardTitle>Fluxo de Caixa</CardTitle>
+          <CardDescription>Visualize e gerencie seu fluxo de caixa.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <BudgetCashFlowTable budgetId={Number(id)} />
+        </CardContent>
+      </Card>
     </div>
   );
 }
