@@ -70,7 +70,7 @@ const CashFlowCreateDialog = forwardRef<CashFlowCreateDialogRef>((_, ref) => {
       queryClient.invalidateQueries({ queryKey: ['cash-flows', 1] });
       setOpen(false);
       form.reset();
-      toast.success('Fluxo de caixa criado com sucesso!');
+      toast.success('Caixa criado com sucesso!');
     },
     onError: () => {},
   });
@@ -86,10 +86,8 @@ const CashFlowCreateDialog = forwardRef<CashFlowCreateDialogRef>((_, ref) => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Criar fluxo de caixa</DialogTitle>
-          <DialogDescription>
-            Preencha os detalhes para criar um novo fluxo de caixa.
-          </DialogDescription>
+          <DialogTitle>Criar Caixa</DialogTitle>
+          <DialogDescription>Preencha os detalhes para criar um novo caixa.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -113,11 +111,7 @@ const CashFlowCreateDialog = forwardRef<CashFlowCreateDialogRef>((_, ref) => {
                 <FormItem>
                   <FormLabel>Descrição</FormLabel>
                   <FormControl>
-                    <Textarea
-                      maxLength={60}
-                      placeholder="Descrição breve do fluxo de caixa"
-                      {...field}
-                    />
+                    <Textarea maxLength={60} placeholder="Descrição breve do caixa" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
