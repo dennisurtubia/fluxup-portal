@@ -128,7 +128,7 @@ export function BudgetCashFlowTable({ budgetId }: BudgetTableProps) {
                       <Table>
                         <TableHeader>
                           <TableRow className="border-b border-muted">
-                            <TableHead className="w-[200px]">Category</TableHead>
+                            <TableHead className="w-[200px]">Categoria</TableHead>
                             <TableHead className="pl-5">Descrição</TableHead>
                             <TableHead className="w-[100px] text-center">Tipo</TableHead>
                             <TableHead className="pr-5 text-right">Valor</TableHead>
