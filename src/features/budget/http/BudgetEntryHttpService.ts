@@ -1,3 +1,4 @@
+import { CategoryType } from '@/features/categories/http/CategoryHttpService';
 import { TagType } from '@/features/tag/http/TagHttpService';
 import { HttpService } from '@/http/HttpService';
 
@@ -17,12 +18,13 @@ export type BudgetEntryBodyType = {
 export type BudgetEntryType = {
   id: number;
   description: string;
-  values: BudgetEntryValue[];
+  amount: number;
   type: 'income' | 'expense';
   tags: TagType[];
-  category_id: number;
   created_at: string;
   updated_at: string;
+  month: number;
+  category: CategoryType;
 };
 
 class BudgetEntryService extends HttpService {

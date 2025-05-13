@@ -139,8 +139,7 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
       return budgetEntryHttpServiceInstance.createBudgetEntry(budgetId, data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['budgetsEntryExpense', 1] });
-      queryClient.invalidateQueries({ queryKey: ['budgetsEntryIncome', 1] });
+      queryClient.invalidateQueries({ queryKey: ['budgetCashFlow', budgetId] });
       setOpen(false);
       form.reset();
       toast.success('Entrada criada com sucesso!');
