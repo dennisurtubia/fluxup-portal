@@ -38,7 +38,7 @@ export default function CashFlowPage() {
   if (isError) {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold">Erro ao carregar os fluxos de caixa</h1>
+        <h1 className="text-2xl font-bold">Erro ao carregar os Caixas</h1>
         <p className="mt-4 text-lg">Tente novamente mais tarde.</p>
       </div>
     );
@@ -47,9 +47,9 @@ export default function CashFlowPage() {
   return (
     <div className="h-full w-full">
       <div className="flex justify-between items-center mb-5">
-        <Title>Fluxos de caixa</Title>
+        <Title>Caixa</Title>
         <Button variant="default" onClick={handleCreateCashFlow}>
-          Criar Fluxo de Caixa
+          Criar Caixa
         </Button>
 
         <CashFlowCreateDialog ref={dialogRef} />

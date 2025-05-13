@@ -13,6 +13,7 @@ export type CashFlowEntryBodyType = {
   category_id: number;
   bank_account_id: number;
   party_id: number;
+  payment_type: 'boleto' | 'pix' | 'ted' | 'credit_card' | 'debit_card';
 };
 
 export type CashFlowEntryType = {
@@ -20,6 +21,7 @@ export type CashFlowEntryType = {
   description: string;
   amount: number;
   type: 'income' | 'expense';
+  payment_type: 'boleto' | 'pix' | 'ted' | 'credit_card' | 'debit_card';
   tags: TagType[];
   created_at: string;
   updated_at: string;
