@@ -1,14 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { forwardRef, useCallback, useImperativeHandle, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useState, useMemo, forwardRef, useImperativeHandle, useCallback } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { z } from 'zod';
 
-import { budgetEntryHttpServiceInstance } from '../../http/BudgetEntryHttpService';
+import {
+  BudgetEntryBodyType,
+  budgetEntryHttpServiceInstance,
+} from '../../http/BudgetEntryHttpService';
 
 import { Button } from '@/components/ui/button';
-import { CurrencyInput } from '@/components/ui/currency-input';
 import {
   Dialog,
   DialogContent,
@@ -26,8 +28,9 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { MonthSelect } from '@/components/ui/month-select';
+import { Label } from '@/components/ui/label';
 import { MultiSelect } from '@/components/ui/multi-select';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Select,
   SelectContent,
@@ -35,6 +38,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import {
   categoryHttpServiceInstance,
   CategoryType,
@@ -42,12 +46,13 @@ import {
 import { tagHttpServiceInstance, TagType } from '@/features/tag/http/TagHttpService';
 
 const budgetEntryCreateSchema = z.object({
-  description: z.string().max(40, 'A descrição deve ter no máximo 40 caracteres'),
-  amount: z.number(),
-  month: z.string(),
+  description: z.string().max(40),
   type: z.enum(['income', 'expense']),
-  category_id: z.string(),
-  tags: z.array(z.number().int()).optional(),
+  category_id: z.number(),
+  tags: z.array(z.number()).optional(),
+  values: z
+    .array(z.object({ month: z.number(), amount: z.number() }))
+    .min(1, 'Informe ao menos um mês'),
 });
 
 export type BudgetEntryCreateDialogRef = {
@@ -58,48 +63,86 @@ export type BudgetEntryCreateDialogRef = {
   setLastMonth: (_: string) => void;
 };
 
-type BudgetEntryCreateData = z.infer<typeof budgetEntryCreateSchema>;
-
 const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) => {
   const [open, setOpen] = useState(false);
   const [budgetId, setBudgetId] = useState<number | null>(null);
   const [initialMonth, setInitialMonth] = useState<string | null>(null);
   const [lastMonth, setLastMonth] = useState<string | null>(null);
+  const [defaultValue, setDefaultValue] = useState<number>(0);
   const queryClient = useQueryClient();
 
-  const form = useForm<BudgetEntryCreateData>({
+  const form = useForm({
     resolver: zodResolver(budgetEntryCreateSchema),
-    mode: 'onTouched',
     defaultValues: {
       description: '',
+      type: undefined,
+      category_id: undefined,
+      tags: [],
+      values: [],
     },
   });
+
+  const watchedValues = useWatch({ control: form.control, name: 'values' });
 
   useImperativeHandle(ref, () => ({
     open: () => setOpen(true),
     close: () => setOpen(false),
-    setBudgetId: (newBudgetId: number) => setBudgetId(newBudgetId),
-    setInitialMonth: (initialMonth: string) => setInitialMonth(initialMonth),
-    setLastMonth: (lastMonth: string) => setLastMonth(lastMonth),
+    setBudgetId: (id) => setBudgetId(id),
+    setInitialMonth: (m) => setInitialMonth(m),
+    setLastMonth: (m) => setLastMonth(m),
   }));
+
+  type BudgetEntryCreateData = z.infer<typeof budgetEntryCreateSchema>;
+
+  const { data: categories } = useQuery<CategoryType[]>({
+    queryKey: ['categories', budgetId],
+    queryFn: () => categoryHttpServiceInstance.getCategories(),
+    retry: false,
+  });
+
+  const { data: tags } = useQuery<TagType[]>({
+    queryKey: ['tags', budgetId],
+    queryFn: () => tagHttpServiceInstance.getTags(),
+    retry: false,
+  });
+
+  const months = useMemo(() => {
+    if (!initialMonth || !lastMonth) return [];
+    const [startYear, startMonth] = initialMonth.split('-').map(Number);
+    const [endYear, endMonth] = lastMonth.split('-').map(Number);
+
+    const list = [];
+    for (let y = startYear; y <= endYear; y++) {
+      const start = y === startYear ? startMonth : 1;
+      const end = y === endYear ? endMonth : 12;
+      for (let m = start; m <= end; m++) {
+        list.push({ year: y, month: m });
+      }
+    }
+    return list;
+  }, [initialMonth, lastMonth]);
+
+  const total = useMemo(() => {
+    return watchedValues.reduce((sum, v) => sum + (v.amount || 0), 0);
+  }, [watchedValues]);
+
+  const applyDefaultToAll = () => {
+    form.setValue(
+      'values',
+      months.map((m) => ({ ...m, amount: defaultValue })),
+    );
+  };
 
   const budgetMutation = useMutation({
     mutationFn: async (data: BudgetEntryCreateData) => {
-      if (budgetId == null) return Promise.resolve(null);
-
-      return budgetEntryHttpServiceInstance.createBudgetEntry(budgetId, {
-        ...data,
-        category_id: Number(data.category_id),
-        month: Number(data.month),
-      });
+      if (budgetId == null) return null;
+      return budgetEntryHttpServiceInstance.createBudgetEntry(budgetId, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['budgetsEntryExpense', 1] });
       queryClient.invalidateQueries({ queryKey: ['budgetsEntryIncome', 1] });
-
       setOpen(false);
       form.reset();
-
       toast.success('Entrada criada com sucesso!');
     },
     onError: () => {
@@ -108,157 +151,167 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
   });
 
   const onSubmit = useCallback(
-    (data: BudgetEntryCreateData) => {
+    (data: BudgetEntryBodyType) => {
       budgetMutation.mutate(data);
     },
     [budgetMutation],
   );
 
-  const { data: tags, isLoading } = useQuery<TagType[] | undefined>({
-    queryKey: ['tags', 1],
-    retry: false,
-    queryFn: async () => {
-      const response = await tagHttpServiceInstance.getTags();
-      return response;
-    },
-  });
-
-  const { data: categories } = useQuery<CategoryType[] | undefined>({
-    queryKey: ['categories', 1],
-    retry: false,
-    queryFn: async () => {
-      const response = await categoryHttpServiceInstance.getCategories();
-      return response;
-    },
-  });
-
-  const getMonthRange = useCallback(() => {
-    if (initialMonth && lastMonth) {
-      return {
-        start: initialMonth.split('-')[1],
-        end: lastMonth.split('-')[1],
-      };
-    }
-    return undefined;
-  }, [initialMonth, lastMonth]);
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Criar entrada</DialogTitle>
-          <DialogDescription>Preencha os detalhes para criar uma nova entrada.</DialogDescription>
+      <DialogContent className="sm:max-w-[900px] p-0 gap-0">
+        <DialogHeader className="px-6 pt-6 pb-2">
+          <DialogTitle>Adicionar nova entrada</DialogTitle>
+          <DialogDescription>
+            Preencha os valores mensais e informações da entrada.
+          </DialogDescription>
         </DialogHeader>
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="category_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Categoria</FormLabel>
-                  <FormControl>
-                    <Select onValueChange={field.onChange}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Ex: Alimentação" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories
-                          ? categories.map((category) => (
-                              <SelectItem key={category.name} value={category.id.toString()}>
-                                {category.name}
+            <div className="flex flex-col md:flex-row divide-y md:divide-y-0 md:divide-x">
+              <div className="p-6 space-y-6 md:w-1/2">
+                <FormField
+                  control={form.control}
+                  name="category_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Categoria</FormLabel>
+                      <FormControl>
+                        <Select onValueChange={(v) => field.onChange(Number(v))}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Selecione uma categoria" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories?.map((c) => (
+                              <SelectItem key={c.id} value={c.id.toString()}>
+                                {c.name}
                               </SelectItem>
-                            ))
-                          : []}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descrição</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ex: Viagem" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="amount"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Valor</FormLabel>
-                  <FormControl>
-                    <CurrencyInput form={form} placeholder="Ex: R$100,00" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="month"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mês</FormLabel>
-                  <FormControl>
-                    <MonthSelect {...field} range={getMonthRange()} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tipo de entrada</FormLabel>
-                  <FormControl>
-                    <Select onValueChange={field.onChange}>
-                      <SelectTrigger className=" w-full ">
-                        <SelectValue placeholder="Selecione o tipo" />
-                      </SelectTrigger>
-                      <SelectContent ref={field.ref}>
-                        <SelectItem value="income">Receita</SelectItem>
-                        <SelectItem value="expense">Despesa</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="tags"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Agrupadores</FormLabel>
-                  <FormControl>
-                    <MultiSelect
-                      options={tags ? tags.map((tag) => ({ value: tag.id, label: tag.name })) : []}
-                      selected={field.value || []}
-                      onChange={field.onChange}
-                      placeholder={
-                        isLoading ? 'Carregando Agrupadores...' : 'Selecione as Agrupadores'
-                      }
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Descrição</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tipo</FormLabel>
+                      <FormControl>
+                        <Select onValueChange={field.onChange}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Tipo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="income">Receita</SelectItem>
+                            <SelectItem value="expense">Despesa</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="tags"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Agrupadores</FormLabel>
+                      <FormControl>
+                        <MultiSelect
+                          options={tags?.map((tag) => ({ value: tag.id, label: tag.name })) ?? []}
+                          selected={field.value ?? []}
+                          onChange={field.onChange}
+                          placeholder="Selecione os agrupadores"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="space-y-2">
+                  <Label>Valor Padrão Mensal</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      value={defaultValue}
+                      onChange={(e) => setDefaultValue(Number(e.target.value))}
                     />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <DialogFooter>
-              <Button type="submit">Salvar</Button>
+                    <Button type="button" variant="outline" onClick={applyDefaultToAll}>
+                      Aplicar a Todos
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t">
+                  <div className="text-sm font-medium">Resumo</div>
+                  <div className="flex justify-between">
+                    <span>Total Anual:</span>
+                    <span className="font-bold">R$ {total.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Média Mensal:</span>
+                    <span>R$ {(months.length > 0 ? total / months.length : 0).toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 md:w-1/2">
+                <FormLabel>Valores Mensais</FormLabel>
+                <ScrollArea className="mt-4 h-[350px]">
+                  <div className="space-y-4 pr-4">
+                    {months.map((m, index) => (
+                      <FormField
+                        key={`${m.month}-${m.year}`}
+                        control={form.control}
+                        name={`values.${index}.amount`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{`${m.month}/${m.year}`}</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="number"
+                                step="0.01"
+                                {...field}
+                                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
+            </div>
+            <DialogFooter className="px-6 py-4 border-t">
+              <Button variant="outline" type="button" onClick={() => setOpen(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit">Salvar Entradas</Button>
             </DialogFooter>
           </form>
         </Form>

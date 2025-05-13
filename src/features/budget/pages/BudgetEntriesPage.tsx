@@ -23,10 +23,12 @@ export default function BudgetEntriesPage() {
   const dialogRef = useRef<BudgetEntryCreateDialogRef>(null);
 
   const handleCreateBudgetEntry = useCallback(() => {
+    if (!id || !initialMonth || !lastMonth) return;
+
     dialogRef.current?.setBudgetId(Number(id));
-    dialogRef.current?.open();
     dialogRef.current?.setInitialMonth(initialMonth);
     dialogRef.current?.setLastMonth(lastMonth);
+    dialogRef.current?.open();
   }, [id, initialMonth, lastMonth]);
 
   return (
