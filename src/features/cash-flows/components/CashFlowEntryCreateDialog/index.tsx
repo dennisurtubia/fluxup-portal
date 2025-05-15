@@ -213,7 +213,6 @@ const CashFlowEntryCreateDialog = forwardRef<CashFlowEntryCreateDialogRef>((_, r
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Descrição</FormLabel>
                     <FormControl>
                       <Input placeholder="Ex: Viagem" {...field} />
                     </FormControl>
@@ -222,7 +221,8 @@ const CashFlowEntryCreateDialog = forwardRef<CashFlowEntryCreateDialogRef>((_, r
               />
 
               <div>
-                <CurrencyInput form={form} placeholder="Ex: R$100,00" label="Valor" name="amount" />
+                <FormLabel>Valor</FormLabel>
+                <CurrencyInput form={form} placeholder="Ex: R$100,00" name="amount" />
               </div>
               <FormField
                 control={form.control}

@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState, useMemo, forwardRef, useImperativeHandle, useCallback } from 'react';
+import { useState, useMemo, forwardRef, useImperativeHandle, useCallback, useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { z } from 'zod';
@@ -44,6 +44,7 @@ import {
   CategoryType,
 } from '@/features/categories/http/CategoryHttpService';
 import { tagHttpServiceInstance, TagType } from '@/features/tag/http/TagHttpService';
+import { formatMoneyInput } from '@/utils/mask/formatMoneyInput';
 
 const budgetEntryCreateSchema = z.object({
   description: z.string().max(40),
@@ -52,7 +53,11 @@ const budgetEntryCreateSchema = z.object({
   tags: z.array(z.number()).optional(),
   values: z
     .array(z.object({ month: z.number(), amount: z.number() }))
-    .min(1, 'Informe ao menos um mês'),
+    .min(1, 'Informe ao menos um mês')
+    .refine((vals) => vals.some((v) => v.amount > 0), {
+      message: 'Informe ao menos um valor maior que zero',
+      path: ['values'],
+    }),
 });
 
 export type BudgetEntryCreateDialogRef = {
@@ -122,15 +127,29 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
     return list;
   }, [initialMonth, lastMonth]);
 
+  useEffect(() => {
+    if (months.length > 0) {
+      const initialValues = months.map((m) => ({ month: m.month, amount: 0 }));
+      form.reset({
+        ...form.getValues(),
+        values: initialValues,
+      });
+    }
+  }, [months, form]);
+
   const total = useMemo(() => {
-    return watchedValues.reduce((sum, v) => sum + (v.amount || 0), 0);
+    return (
+      watchedValues.reduce((sum, v) => sum + (typeof v.amount === 'number' ? v.amount : 0), 0) / 100
+    );
   }, [watchedValues]);
 
   const applyDefaultToAll = () => {
-    form.setValue(
-      'values',
-      months.map((m) => ({ ...m, amount: defaultValue })),
-    );
+    if (defaultValue > 0) {
+      form.setValue(
+        'values',
+        months.map((m) => ({ ...m, amount: defaultValue })),
+      );
+    }
   };
 
   const budgetMutation = useMutation({
@@ -151,7 +170,16 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
 
   const onSubmit = useCallback(
     (data: BudgetEntryBodyType) => {
-      budgetMutation.mutate(data);
+      const dataConverted = {
+        ...data,
+        values: data.values
+          .filter((v) => typeof v.amount === 'number' && v.amount > 0)
+          .map((v) => ({
+            ...v,
+            amount: v.amount / 100,
+          })),
+      };
+      budgetMutation.mutate(dataConverted);
     },
     [budgetMutation],
   );
@@ -254,9 +282,15 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
                   <Label>Valor Padrão Mensal</Label>
                   <div className="flex gap-2">
                     <Input
-                      type="number"
-                      value={defaultValue}
-                      onChange={(e) => setDefaultValue(Number(e.target.value))}
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="R$ 0,00"
+                      value={formatMoneyInput(defaultValue.toString())}
+                      onChange={(e) => {
+                        const raw = e.target.value.replace(/\D/g, '');
+                        const numeric = parseInt(raw || '0', 10);
+                        setDefaultValue(numeric);
+                      }}
                     />
                     <Button type="button" variant="outline" onClick={applyDefaultToAll}>
                       Aplicar a Todos
@@ -291,10 +325,18 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
                             <FormLabel>{`${m.month}/${m.year}`}</FormLabel>
                             <FormControl>
                               <Input
-                                type="number"
-                                step="0.01"
-                                {...field}
-                                onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                value={
+                                  field.value !== undefined
+                                    ? formatMoneyInput(field.value.toString())
+                                    : ''
+                                }
+                                onChange={(e) => {
+                                  const raw = e.target.value.replace(/\D/g, '');
+                                  const numeric = raw === '' ? '' : parseInt(raw, 10);
+                                  field.onChange(numeric);
+                                }}
+                                inputMode="numeric"
+                                placeholder="R$ 0,00"
                               />
                             </FormControl>
                             <FormMessage />
