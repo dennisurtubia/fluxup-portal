@@ -78,9 +78,9 @@ export function BudgetCashFlowTable({ budgetId }: BudgetTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead className="pl-5 w-[200px]">Mês</TableHead>
-            <TableHead className="text-right">Receitas</TableHead>
-            <TableHead className="text-right">Despesas</TableHead>
-            <TableHead className="pr-5 text-right">Saldo</TableHead>
+            <TableHead className="text-right">Receitas (R$)</TableHead>
+            <TableHead className="text-right">Despesas (R$)</TableHead>
+            <TableHead className="pr-5 text-right">Saldo (R$)</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
