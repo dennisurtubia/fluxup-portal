@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { CategoryType } from '@/features/categories/http/CategoryHttpService';
 import { TagType } from '@/features/tag/http/TagHttpService';
 import { getMonthName } from '@/utils/getMonthName';
+import { formatCurrency } from '@/utils/mask/formatCurrency';
 
 export const BudgetEntriesIncomeColumns: ColumnDef<BudgetEntryType>[] = [
   {
@@ -51,18 +52,14 @@ export const BudgetEntriesIncomeColumns: ColumnDef<BudgetEntryType>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         >
-          Valor
+          Valor (R$)
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
     },
     cell: ({ row }) => {
       const amount = row.getValue('amount') as number;
-      const formattedAmount = amount.toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-      });
-      return <div className="font-medium">{formattedAmount}</div>;
+      return <div className="font-medium">{formatCurrency(amount)}</div>;
     },
   },
   {
