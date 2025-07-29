@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 
 import { BudgetEntriesExpense } from '../components/BudgetEntriesExpense';
@@ -14,6 +14,7 @@ import Title from '@/components/ui/title';
 
 export default function BudgetEntriesPage() {
   const params = useParams();
+  const navigation = useNavigate();
 
   const { id } = params;
 
@@ -31,13 +32,24 @@ export default function BudgetEntriesPage() {
     dialogRef.current?.open();
   }, [id, initialMonth, lastMonth]);
 
+  const handleShowCashFlow = useCallback(() => {
+    if (!id) return;
+
+    navigation(`/app/budgets/${id}/cash-flow`);
+  }, [id, navigation]);
+
   return (
     <div className="h-full w-full">
       <div className="flex justify-between items-center mb-5">
         <Title>{name}</Title>
-        <Button variant="default" onClick={handleCreateBudgetEntry}>
-          Nova Entrada
-        </Button>
+        <div className="flex items-center space-x-2">
+          <Button variant="default" onClick={handleCreateBudgetEntry}>
+            Nova Entrada
+          </Button>
+          <Button variant="default" onClick={handleShowCashFlow}>
+            Exibir fluxo de caixa
+          </Button>
+        </div>
 
         <BudgetEntryCreateDialog ref={dialogRef} />
       </div>
