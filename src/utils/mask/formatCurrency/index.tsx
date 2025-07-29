@@ -1,3 +1,6 @@
 export function formatCurrency(currency: number) {
-  return currency.toFixed(2).replace('.', ',');
+  return new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(currency);
 }

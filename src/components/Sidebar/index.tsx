@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 
+import LogoDark from '../../assets/fluxup-dark.svg';
 import Logo from '../../assets/fluxup.svg';
 import { SidebarUser } from '../SidebarUser';
 
@@ -16,6 +17,7 @@ import {
 } from '@/components/ui/sidebar';
 import { MenuItem } from '@/constants/listMenu';
 import useAuth from '@/hooks/useAuth';
+import { useTheme } from '@/providers/ThemeProvider';
 
 type AppSidebarProps = React.ComponentPropsWithoutRef<typeof Sidebar> & {
   menuItems?: MenuItem[];
@@ -23,13 +25,20 @@ type AppSidebarProps = React.ComponentPropsWithoutRef<typeof Sidebar> & {
 
 export function AppSidebar({ menuItems = [], ...props }: AppSidebarProps) {
   const { user } = useAuth();
+  const { theme } = useTheme();
 
   return (
     <Sidebar {...props}>
       <SidebarHeader>
-        <div className="flex justify-center p-3">
-          <img src={Logo} className="w-35" alt="Logo" />
-        </div>
+        {theme === 'dark' ? (
+          <div className="flex justify-center p-3">
+            <img src={LogoDark} className="w-35" alt="Logo" />
+          </div>
+        ) : (
+          <div className="flex justify-center p-3">
+            <img src={Logo} className="w-35" alt="Logo" />
+          </div>
+        )}
       </SidebarHeader>
 
       <SidebarContent className="p-2">

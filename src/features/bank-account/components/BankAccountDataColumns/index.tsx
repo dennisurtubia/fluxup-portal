@@ -6,6 +6,7 @@ import CresolLogo from '../../../../assets/cresol-logo.svg';
 import { BankAccountType } from '../../http/BankAcoountHttpService';
 
 import { Button } from '@/components/ui/button';
+import { formatCurrency } from '@/utils/mask/formatCurrency';
 
 const bankAccountNameMap = {
   BANCO_DO_BRASIL: 'Banco do Brasil',
@@ -84,6 +85,25 @@ export const BankAccountDataColumns: ColumnDef<BankAccountType>[] = [
             {bankAccountNameMap[row.getValue('bank') as BankAccountType['bank']]}
           </div>
         )}
+      </div>
+    ),
+  },
+  {
+    accessorKey: 'current_balance',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Saldo Atual
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="font-medium">
+        {row.getValue('current_balance') ? formatCurrency(row.getValue('current_balance')) : '---'}
       </div>
     ),
   },

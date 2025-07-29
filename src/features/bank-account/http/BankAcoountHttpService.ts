@@ -8,6 +8,7 @@ export type BankAccountType = {
   created_at: Date;
   updated_at: Date;
   bank: 'BANCO_DO_BRASIL' | 'CRESOL';
+  current_balance: number;
 };
 
 export type BankAccountDataType = {

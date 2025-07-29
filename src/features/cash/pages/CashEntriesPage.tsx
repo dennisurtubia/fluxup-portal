@@ -7,8 +7,8 @@ import CashEntryCreateDialog, {
 } from '../components/CashEntryCreateDialog';
 import { CashEntryTable } from '../components/CashEntryTable';
 
+import HeaderNavigation from '@/components/HeaderNavigation';
 import { Button } from '@/components/ui/button';
-import Title from '@/components/ui/title';
 
 export default function CashEntriesPage() {
   const params = useParams();
@@ -28,7 +28,7 @@ export default function CashEntriesPage() {
   return (
     <div className="h-full w-full">
       <div className="flex justify-between items-center mb-5">
-        <Title>{name}</Title>
+        <HeaderNavigation title={name} />
         <Button variant="default" onClick={handleCreateCashEntry}>
           Nova Entrada
         </Button>
