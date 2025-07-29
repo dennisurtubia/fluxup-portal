@@ -4,7 +4,7 @@ import { PartyType } from '@/features/party/http/PartyHttpService';
 import { TagType } from '@/features/tag/http/TagHttpService';
 import { HttpService } from '@/http/HttpService';
 
-export type CashFlowEntryBodyType = {
+export type CashEntryBodyType = {
   description: string;
   amount: number;
   type: 'income' | 'expense';
@@ -16,7 +16,7 @@ export type CashFlowEntryBodyType = {
   payment_type: 'boleto' | 'pix' | 'ted' | 'credit_card' | 'debit_card';
 };
 
-export type CashFlowEntryType = {
+export type CashEntryType = {
   id: number;
   description: string;
   amount: number;
@@ -31,14 +31,14 @@ export type CashFlowEntryType = {
   party: PartyType;
 };
 
-class CashFlowEntryService extends HttpService {
-  async getCashFlowEntries(id: number) {
-    return this.get<CashFlowEntryType[]>(`/cash-flows/${id}/entries`);
+class CashEntryService extends HttpService {
+  async getCashEntries(id: number) {
+    return this.get<CashEntryType[]>(`/cash-flows/${id}/entries`);
   }
 
-  async createCashFlowEntry(id: number, data: CashFlowEntryBodyType) {
+  async createCashEntry(id: number, data: CashEntryBodyType) {
     return this.post(`/cash-flows/${id}/entries`, data);
   }
 }
 
-export const cashFlowEntryHttpServiceInstance = new CashFlowEntryService();
+export const cashEntryHttpServiceInstance = new CashEntryService();

@@ -1,13 +1,13 @@
 import { HttpService } from '@/http/HttpService';
 
-export type CashFlowBodyType = {
+export type CashBodyType = {
   description?: string;
   start_date: Date;
   end_date: Date;
   name: string;
 };
 
-export type CashFlowType = {
+export type CashType = {
   id: number;
   created_at: string;
   updated_at: string;
@@ -17,12 +17,12 @@ export type CashFlowType = {
   name: string;
 };
 
-class CashFlowService extends HttpService {
-  async getCashFlowEntries() {
-    return this.get<CashFlowType[]>('/cash-flows');
+class CashService extends HttpService {
+  async getCashEntries() {
+    return this.get<CashType[]>('/cash-flows');
   }
 
-  async createCashFlow(data: CashFlowBodyType) {
+  async createCash(data: CashBodyType) {
     const start_date = data.start_date.toISOString().split('T')[0];
     const end_date = data.end_date.toISOString().split('T')[0];
 
@@ -34,4 +34,4 @@ class CashFlowService extends HttpService {
   }
 }
 
-export const cashFlowsHttpServiceInstance = new CashFlowService();
+export const cashHttpServiceInstance = new CashService();

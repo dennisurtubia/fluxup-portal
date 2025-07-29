@@ -1,33 +1,33 @@
 import { useQuery } from '@tanstack/react-query';
 import { useCallback, useRef } from 'react';
 
-import CashFlowCreateDialog, { CashFlowCreateDialogRef } from '../components/CashFlowCreateDialog';
-import { CashFlowDataColumns } from '../components/CashFlowDataColumns';
-import { cashFlowsHttpServiceInstance, CashFlowType } from '../http/CashFlowHttpService';
+import CashCreateDialog, { CashCreateDialogRef } from '../components/CashCreateDialog';
+import { CashDataColumns } from '../components/CashDataColumns';
+import { cashHttpServiceInstance, CashType } from '../http/CashHttpService';
 
 import { DataTable } from '@/components/DataTable';
 import LoadingScreen from '@/components/Loading';
 import { Button } from '@/components/ui/button';
 import Title from '@/components/ui/title';
 
-export default function CashFlowPage() {
-  const dialogRef = useRef<CashFlowCreateDialogRef>(null);
+export default function CashPage() {
+  const dialogRef = useRef<CashCreateDialogRef>(null);
 
   const {
-    data: cashFlows,
+    data: cash,
     isLoading,
     isError,
-  } = useQuery<CashFlowType[] | undefined>({
-    queryKey: ['cash-flows', 1],
+  } = useQuery<CashType[] | undefined>({
+    queryKey: ['cash', 1],
     retry: false,
     queryFn: async () => {
-      const response = await cashFlowsHttpServiceInstance.getCashFlowEntries();
+      const response = await cashHttpServiceInstance.getCashEntries();
 
       return response;
     },
   });
 
-  const handleCreateCashFlow = useCallback(() => {
+  const handleCreateCash = useCallback(() => {
     dialogRef.current?.open();
   }, []);
 
@@ -48,14 +48,14 @@ export default function CashFlowPage() {
     <div className="h-full w-full">
       <div className="flex justify-between items-center mb-5">
         <Title>Caixa</Title>
-        <Button variant="default" onClick={handleCreateCashFlow}>
+        <Button variant="default" onClick={handleCreateCash}>
           Criar Caixa
         </Button>
 
-        <CashFlowCreateDialog ref={dialogRef} />
+        <CashCreateDialog ref={dialogRef} />
       </div>
 
-      <DataTable columns={CashFlowDataColumns} data={cashFlows || []} />
+      <DataTable columns={CashDataColumns} data={cash || []} />
     </div>
   );
 }

@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { z } from 'zod';
 
-import { cashFlowEntryHttpServiceInstance } from '../../http/CashFlowEntryHttpService';
+import { cashEntryHttpServiceInstance } from '../../http/CashEntryHttpService';
 
 import { getBankDisplayData } from './utils/bank-utils';
 import { paymentTypeOptions } from './utils/payment_type-utils';
@@ -47,7 +47,7 @@ import { tagHttpServiceInstance, TagType } from '@/features/tag/http/TagHttpServ
 import { useDidMountUpdate } from '@/hooks/useDidMountUpdate';
 import { cn } from '@/lib/utils';
 
-const cashFlowsEntryCreateSchema = z.object({
+const cashEntryCreateSchema = z.object({
   description: z.string().max(40, 'A descrição deve ter no máximo 40 caracteres'),
   amount: z.number({ required_error: 'O valor é obrigatório' }),
   type: z.enum(['income', 'expense']),
@@ -59,21 +59,21 @@ const cashFlowsEntryCreateSchema = z.object({
   party_id: z.string(),
 });
 
-export type CashFlowEntryCreateDialogRef = {
+export type CashEntryCreateDialogRef = {
   open: () => void;
   close: () => void;
-  setCashFlowId: (_: number) => void;
+  setCashId: (_: number) => void;
 };
 
-type CashFlowEntryCreateData = z.infer<typeof cashFlowsEntryCreateSchema>;
+type CashEntryCreateData = z.infer<typeof cashEntryCreateSchema>;
 
-const CashFlowEntryCreateDialog = forwardRef<CashFlowEntryCreateDialogRef>((_, ref) => {
+const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
   const [open, setOpen] = useState(false);
-  const [cashFlowsId, setCashFlowId] = useState<number | null>(null);
+  const [cashId, setCashId] = useState<number | null>(null);
   const queryClient = useQueryClient();
 
-  const form = useForm<CashFlowEntryCreateData>({
-    resolver: zodResolver(cashFlowsEntryCreateSchema),
+  const form = useForm<CashEntryCreateData>({
+    resolver: zodResolver(cashEntryCreateSchema),
     mode: 'onTouched',
     defaultValues: {
       description: '',
@@ -83,14 +83,14 @@ const CashFlowEntryCreateDialog = forwardRef<CashFlowEntryCreateDialogRef>((_, r
   useImperativeHandle(ref, () => ({
     open: () => setOpen(true),
     close: () => setOpen(false),
-    setCashFlowId: (newCashFlowId: number) => setCashFlowId(newCashFlowId),
+    setCashId: (newCashId: number) => setCashId(newCashId),
   }));
 
-  const cashFlowsMutation = useMutation({
-    mutationFn: async (data: CashFlowEntryCreateData) => {
-      if (cashFlowsId == null) return Promise.resolve(null);
+  const cashMutation = useMutation({
+    mutationFn: async (data: CashEntryCreateData) => {
+      if (cashId == null) return Promise.resolve(null);
 
-      return cashFlowEntryHttpServiceInstance.createCashFlowEntry(cashFlowsId, {
+      return cashEntryHttpServiceInstance.createCashEntry(cashId, {
         ...data,
         category_id: Number(data.category_id),
         bank_account_id: Number(data.bank_account_id),
@@ -100,7 +100,7 @@ const CashFlowEntryCreateDialog = forwardRef<CashFlowEntryCreateDialogRef>((_, r
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cash-flow-entry', 1] });
+      queryClient.invalidateQueries({ queryKey: ['cash-entry', 1] });
 
       setOpen(false);
       form.reset();
@@ -113,10 +113,10 @@ const CashFlowEntryCreateDialog = forwardRef<CashFlowEntryCreateDialogRef>((_, r
   });
 
   const onSubmit = useCallback(
-    (data: CashFlowEntryCreateData) => {
-      cashFlowsMutation.mutate(data);
+    (data: CashEntryCreateData) => {
+      cashMutation.mutate(data);
     },
-    [cashFlowsMutation],
+    [cashMutation],
   );
 
   const { data: tags, isLoading: isLoadingTags } = useQuery<TagType[] | undefined>({
@@ -399,4 +399,4 @@ const CashFlowEntryCreateDialog = forwardRef<CashFlowEntryCreateDialogRef>((_, r
   );
 });
 
-export default CashFlowEntryCreateDialog;
+export default CashEntryCreateDialog;

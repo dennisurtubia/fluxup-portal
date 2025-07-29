@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { z } from 'zod';
 
-import { cashFlowsHttpServiceInstance } from '../../http/CashFlowHttpService';
+import { cashHttpServiceInstance } from '../../http/CashHttpService';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -32,7 +32,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 
-const cashFlowsCreateSchema = z
+const cashCreateSchema = z
   .object({
     name: z.string({ required_error: 'O nome é obrigatório' }),
     description: z.string().max(60, 'O máximo de caracteres é 60').optional(),
@@ -44,19 +44,19 @@ const cashFlowsCreateSchema = z
     path: ['start_date'],
   });
 
-export type CashFlowCreateDialogRef = {
+export type CashCreateDialogRef = {
   open: () => void;
   close: () => void;
 };
 
-type CashFlowCreateData = z.infer<typeof cashFlowsCreateSchema>;
+type CashCreateData = z.infer<typeof cashCreateSchema>;
 
-const CashFlowCreateDialog = forwardRef<CashFlowCreateDialogRef>((_, ref) => {
+const CashCreateDialog = forwardRef<CashCreateDialogRef>((_, ref) => {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  const form = useForm<CashFlowCreateData>({
-    resolver: zodResolver(cashFlowsCreateSchema),
+  const form = useForm<CashCreateData>({
+    resolver: zodResolver(cashCreateSchema),
   });
 
   useImperativeHandle(ref, () => ({
@@ -64,10 +64,10 @@ const CashFlowCreateDialog = forwardRef<CashFlowCreateDialogRef>((_, ref) => {
     close: () => setOpen(false),
   }));
 
-  const cashFlowsMutation = useMutation({
-    mutationFn: (data: CashFlowCreateData) => cashFlowsHttpServiceInstance.createCashFlow(data),
+  const cashMutation = useMutation({
+    mutationFn: (data: CashCreateData) => cashHttpServiceInstance.createCash(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cash-flows', 1] });
+      queryClient.invalidateQueries({ queryKey: ['cash', 1] });
       setOpen(false);
       form.reset();
       toast.success('Caixa criado com sucesso!');
@@ -76,10 +76,10 @@ const CashFlowCreateDialog = forwardRef<CashFlowCreateDialogRef>((_, ref) => {
   });
 
   const onSubmit = useCallback(
-    (data: CashFlowCreateData) => {
-      cashFlowsMutation.mutate(data);
+    (data: CashCreateData) => {
+      cashMutation.mutate(data);
     },
-    [cashFlowsMutation],
+    [cashMutation],
   );
 
   return (
@@ -203,4 +203,4 @@ const CashFlowCreateDialog = forwardRef<CashFlowCreateDialogRef>((_, ref) => {
   );
 });
 
-export default CashFlowCreateDialog;
+export default CashCreateDialog;

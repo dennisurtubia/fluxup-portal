@@ -2,15 +2,15 @@ import { useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 
-import CashFlowEntryCreateDialog, {
-  CashFlowEntryCreateDialogRef,
-} from '../components/CashFlowEntryCreateDialog';
-import { CashFlowEntryTable } from '../components/CashFlowEntryTable';
+import CashEntryCreateDialog, {
+  CashEntryCreateDialogRef,
+} from '../components/CashEntryCreateDialog';
+import { CashEntryTable } from '../components/CashEntryTable';
 
 import { Button } from '@/components/ui/button';
 import Title from '@/components/ui/title';
 
-export default function CashFlowEntriesPage() {
+export default function CashEntriesPage() {
   const params = useParams();
 
   const { id } = params;
@@ -18,10 +18,10 @@ export default function CashFlowEntriesPage() {
   const location = useLocation();
   const { name } = location.state || {};
 
-  const dialogRef = useRef<CashFlowEntryCreateDialogRef>(null);
+  const dialogRef = useRef<CashEntryCreateDialogRef>(null);
 
-  const handleCreateCashFlowEntry = useCallback(() => {
-    dialogRef.current?.setCashFlowId(Number(id));
+  const handleCreateCashEntry = useCallback(() => {
+    dialogRef.current?.setCashId(Number(id));
     dialogRef.current?.open();
   }, [id]);
 
@@ -29,14 +29,14 @@ export default function CashFlowEntriesPage() {
     <div className="h-full w-full">
       <div className="flex justify-between items-center mb-5">
         <Title>{name}</Title>
-        <Button variant="default" onClick={handleCreateCashFlowEntry}>
+        <Button variant="default" onClick={handleCreateCashEntry}>
           Nova Entrada
         </Button>
 
-        <CashFlowEntryCreateDialog ref={dialogRef} />
+        <CashEntryCreateDialog ref={dialogRef} />
       </div>
 
-      <CashFlowEntryTable cashFlowId={Number(id)} />
+      <CashEntryTable cashId={Number(id)} />
     </div>
   );
 }
