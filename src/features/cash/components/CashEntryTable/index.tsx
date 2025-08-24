@@ -1,28 +1,25 @@
 import { useQuery } from '@tanstack/react-query';
 
-import {
-  cashFlowEntryHttpServiceInstance,
-  CashFlowEntryType,
-} from '../../http/CashFlowEntryHttpService';
-import { CashFlowEntryColumns } from '../CashFlowEntryColumns';
+import { cashEntryHttpServiceInstance, CashEntryType } from '../../http/CashEntryHttpService';
+import { CashEntryColumns } from '../CashEntryColumns';
 
 import { DataTable } from '@/components/DataTable';
 import LoadingScreen from '@/components/Loading';
 
-type CashFlowEntryProps = {
-  cashFlowId: number;
+type CashEntryProps = {
+  cashId: number;
 };
 
-export function CashFlowEntryTable({ cashFlowId }: CashFlowEntryProps) {
+export function CashEntryTable({ cashId }: CashEntryProps) {
   const {
-    data: cashFlowEntry,
+    data: cashEntry,
     isLoading,
     isError,
-  } = useQuery<CashFlowEntryType[] | undefined>({
-    queryKey: ['cash-flow-entry', 1],
+  } = useQuery<CashEntryType[] | undefined>({
+    queryKey: ['cash-entry', 1],
     retry: false,
     queryFn: async () => {
-      const response = await cashFlowEntryHttpServiceInstance.getCashFlowEntries(cashFlowId);
+      const response = await cashEntryHttpServiceInstance.getCashEntries(cashId);
 
       return response;
     },
@@ -43,7 +40,7 @@ export function CashFlowEntryTable({ cashFlowId }: CashFlowEntryProps) {
 
   return (
     <div className="h-full w-full">
-      <DataTable columns={CashFlowEntryColumns} data={cashFlowEntry || []} />
+      <DataTable columns={CashEntryColumns} data={cashEntry || []} />
     </div>
   );
 }

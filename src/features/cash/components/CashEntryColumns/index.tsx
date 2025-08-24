@@ -1,12 +1,9 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 
-import { CashFlowEntryType } from '../../http/CashFlowEntryHttpService';
-import { getBankDisplayData } from '../CashFlowEntryCreateDialog/utils/bank-utils';
-import {
-  PaymentType,
-  paymentTypeLabel,
-} from '../CashFlowEntryCreateDialog/utils/payment_type-utils';
+import { CashEntryType } from '../../http/CashEntryHttpService';
+import { getBankDisplayData } from '../CashEntryCreateDialog/utils/bank-utils';
+import { PaymentType, paymentTypeLabel } from '../CashEntryCreateDialog/utils/payment_type-utils';
 
 import { Button } from '@/components/ui/button';
 import { BankAccountType } from '@/features/bank-account/http/BankAcoountHttpService';
@@ -14,7 +11,7 @@ import { CategoryType } from '@/features/categories/http/CategoryHttpService';
 import { PartyType } from '@/features/party/http/PartyHttpService';
 import { formatCurrency } from '@/utils/mask/formatCurrency';
 
-export const CashFlowEntryColumns: ColumnDef<CashFlowEntryType>[] = [
+export const CashEntryColumns: ColumnDef<CashEntryType>[] = [
   {
     accessorKey: 'description',
     header: ({ column }) => {

@@ -17,8 +17,8 @@ export function getMenuList(pathname: string): MenuItem[] {
     },
     {
       title: 'Caixa',
-      url: '/app/cash-flows',
-      isActive: pathname === '/app/cash-flows',
+      url: '/app/cash',
+      isActive: pathname === '/app/cash',
       icon: Home,
     },
     {

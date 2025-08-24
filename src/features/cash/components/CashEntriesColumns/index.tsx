@@ -1,7 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 
-import { CashFlowEntryType } from '../../http/CashFlowEntryHttpService';
+import { CashEntryType } from '../../http/CashEntryHttpService';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { CategoryType } from '@/features/categories/http/CategoryHttpService';
 import { TagType } from '@/features/tag/http/TagHttpService';
 import { getMonthName } from '@/utils/getMonthName';
 
-export const CashFlowEntriesIncomeColumns: ColumnDef<CashFlowEntryType>[] = [
+export const CashEntriesIncomeColumns: ColumnDef<CashEntryType>[] = [
   {
     accessorKey: 'category',
     header: ({ column }) => {

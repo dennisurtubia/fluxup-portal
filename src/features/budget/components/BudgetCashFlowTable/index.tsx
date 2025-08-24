@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { ChevronDown, ChevronRight } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { budgetEntryHttpServiceInstance } from '../../http/BudgetEntryHttpService';
 import { budgetHttpServiceInstance } from '../../http/BudgetHttpService';
@@ -38,11 +38,11 @@ const months = [
 export function BudgetCashFlowTable({ budgetId }: BudgetTableProps) {
   const [expandedMonths, setExpandedMonths] = useState<number[]>([]);
 
-  const toggleMonth = (month: number) => {
+  const toggleMonth = useCallback((month: number) => {
     setExpandedMonths((prev) =>
       prev.includes(month) ? prev.filter((m) => m !== month) : [...prev, month],
     );
-  };
+  }, []);
 
   const { data: budgetCashFlow } = useQuery({
     queryKey: ['budgetCashFlow', budgetId],
@@ -63,14 +63,25 @@ export function BudgetCashFlowTable({ budgetId }: BudgetTableProps) {
     enabled: expandedMonths.length > 0,
   });
 
-  const getCashFlow = (month: number) =>
-    budgetCashFlow?.find((entry) => entry.month === month) || {
-      total_incomes: 0,
-      total_expenses: 0,
-      balance: 0,
-    };
+  const getCashFlow = useCallback(
+    (month: number) => {
+      return (
+        budgetCashFlow?.find((entry) => entry.month === month) || {
+          total_incomes: 0,
+          total_expenses: 0,
+          balance: 0,
+        }
+      );
+    },
+    [budgetCashFlow],
+  );
 
-  const getMonthEntries = (month: number) => entriesByMonth?.[month] || [];
+  const getMonthEntries = useCallback(
+    (month: number) => {
+      return entriesByMonth?.[month] || [];
+    },
+    [entriesByMonth],
+  );
 
   return (
     <div className="rounded-md border overflow-auto">
@@ -174,7 +185,6 @@ export function BudgetCashFlowTable({ budgetId }: BudgetTableProps) {
             );
           })}
 
-          {/* Year total row */}
           <TableRow className="bg-muted/50 font-bold">
             <TableCell>Total Anual</TableCell>
             <TableCell className="text-right text-green-600 dark:text-green-200">

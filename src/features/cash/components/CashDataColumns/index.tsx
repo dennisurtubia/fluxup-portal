@@ -3,22 +3,22 @@ import { ArrowUpDown } from 'lucide-react';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { CashFlowType } from '../../http/CashFlowHttpService';
+import { CashType } from '../../http/CashHttpService';
 
 import { Button } from '@/components/ui/button';
 
-type CashFlowDataColumnsProps = {
+type CashDataColumnsProps = {
   rowId: string;
   name: string;
   start_date: string;
   end_date: string;
 };
 
-const NavigateButton: React.FC<CashFlowDataColumnsProps> = ({ rowId, name }) => {
+const NavigateButton: React.FC<CashDataColumnsProps> = ({ rowId, name }) => {
   const navigate = useNavigate();
 
   const handleNavigate = useCallback(() => {
-    navigate(`/app/cash-flow/${rowId}`, {
+    navigate(`/app/cash/${rowId}`, {
       state: {
         name: name,
       },
@@ -32,7 +32,7 @@ const NavigateButton: React.FC<CashFlowDataColumnsProps> = ({ rowId, name }) => 
   );
 };
 
-export const CashFlowDataColumns: ColumnDef<CashFlowType>[] = [
+export const CashDataColumns: ColumnDef<CashType>[] = [
   {
     accessorKey: 'name',
     header: ({ column }) => {

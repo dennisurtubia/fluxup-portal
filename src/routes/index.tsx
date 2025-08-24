@@ -4,7 +4,7 @@ import AppLayout from '../layouts/AppLayout';
 
 import { bankAccountsRouter } from '@/features/bank-account/routes';
 import { budgetsRouter } from '@/features/budget/routes';
-import { cashFlowRouter } from '@/features/cash-flows/routes';
+import { cashRouter } from '@/features/cash/routes';
 import { categoryRouter } from '@/features/categories/routes';
 import { homeRoutes } from '@/features/home/routes';
 import { authRoutes } from '@/features/login/routes';
@@ -23,7 +23,7 @@ const AppRouter = () => {
     ...partiesRoutes,
     ...bankAccountsRouter,
     ...categoryRouter,
-    ...cashFlowRouter,
+    ...cashRouter,
   ];
 
   const routes = useRoutes([
