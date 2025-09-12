@@ -37,8 +37,8 @@ import {
 
 const bankAccountCreateSchema = z.object({
   name: z.string({ required_error: 'Nome é obrigatório' }),
-  number: z.string().max(15),
-  branch_code: z.string().max(15),
+  number: z.string().min(1).max(15),
+  branch_code: z.string().min(1).max(15),
   bank: z.enum(['BANCO_DO_BRASIL', 'CRESOL'], {
     errorMap: () => ({ message: 'Selecione um banco' }),
   }),
