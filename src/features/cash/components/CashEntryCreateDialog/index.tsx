@@ -255,6 +255,7 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
                           selected={field.value}
                           onSelect={field.onChange}
                           initialFocus
+                          disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                         />
                       </PopoverContent>
                     </Popover>
