@@ -332,7 +332,7 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
                                 }
                                 onChange={(e) => {
                                   const raw = e.target.value.replace(/\D/g, '');
-                                  const numeric = raw === '' ? '' : parseInt(raw, 10);
+                                  const numeric = raw === '' ? 0.0 : parseInt(raw, 10);
                                   field.onChange(numeric);
                                 }}
                                 inputMode="numeric"
