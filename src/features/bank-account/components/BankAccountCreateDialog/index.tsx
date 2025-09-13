@@ -10,6 +10,7 @@ import CresolLogo from '../../../../assets/cresol-logo.svg';
 import { bankAccountHttpServiceInstance } from '../../http/BankAcoountHttpService';
 
 import { Button } from '@/components/ui/button';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import {
   Dialog,
   DialogContent,
@@ -42,6 +43,7 @@ const bankAccountCreateSchema = z.object({
   bank: z.enum(['BANCO_DO_BRASIL', 'CRESOL'], {
     errorMap: () => ({ message: 'Selecione um banco' }),
   }),
+  current_balance: z.number({ required_error: 'O valor é obrigatório' }),
 });
 
 export type BankAccountCreateDialogRef = {
@@ -57,6 +59,9 @@ const BankAccountCreateDialog = forwardRef<BankAccountCreateDialogRef>((_, ref) 
 
   const form = useForm<BankAccountCreateData>({
     resolver: zodResolver(bankAccountCreateSchema),
+    defaultValues: {
+      current_balance: 0,
+    },
   });
 
   useImperativeHandle(ref, () => ({
@@ -191,6 +196,10 @@ const BankAccountCreateDialog = forwardRef<BankAccountCreateDialogRef>((_, ref) 
                 </FormItem>
               )}
             />
+            <div>
+              <FormLabel>Saldo inicial</FormLabel>
+              <CurrencyInput form={form} placeholder="Ex: R$100,00" name="current_balance" />
+            </div>
             <DialogFooter>
               <Button type="submit">Salvar</Button>
             </DialogFooter>
