@@ -16,6 +16,7 @@ export type BankAccountDataType = {
   number: string;
   branch_code: string;
   bank: 'BANCO_DO_BRASIL' | 'CRESOL';
+  current_balance: number;
 };
 
 class BankAccountHttpService extends HttpService {
