@@ -149,7 +149,7 @@ const BankAccountCreateDialog = forwardRef<BankAccountCreateDialogRef>((_, ref) 
                       onBeforeInput={(e) => {
                         const inputEvent = e.nativeEvent as InputEvent;
                         const char = inputEvent.data;
-                        if (char && !/[\d-]/.test(char)) {
+                        if (char && !/^[\d.-]+$/.test(char)) {
                           e.preventDefault();
                         }
                       }}
