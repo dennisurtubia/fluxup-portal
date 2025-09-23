@@ -115,50 +115,56 @@ const BankAccountCreateDialog = forwardRef<BankAccountCreateDialogRef>((_, ref) 
             <FormField
               control={form.control}
               name="number"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nº da Conta</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Ex: 12345-0"
-                      inputMode="numeric"
-                      onBeforeInput={(e) => {
-                        const inputEvent = e.nativeEvent as InputEvent;
-                        const char = inputEvent.data;
-                        if (char && !/[\d-]/.test(char)) {
-                          e.preventDefault();
-                        }
-                      }}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const { onChange, ...restField } = field;
+
+                return (
+                  <FormItem>
+                    <FormLabel>Nº da Conta</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Ex: 0406-5"
+                        inputMode="numeric"
+                        onChange={(e) => {
+                          const value = e.target.value;
+
+                          const sanitizedValue = value.replace(/[^0-9.-]/g, '');
+                          onChange(sanitizedValue);
+                        }}
+                        {...restField}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
             <FormField
               control={form.control}
               name="branch_code"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Nº da Agência</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Ex: 0406-5"
-                      inputMode="numeric"
-                      onBeforeInput={(e) => {
-                        const inputEvent = e.nativeEvent as InputEvent;
-                        const char = inputEvent.data;
-                        if (char && !/^[\d.-]+$/.test(char)) {
-                          e.preventDefault();
-                        }
-                      }}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const { onChange, ...restField } = field;
+
+                return (
+                  <FormItem>
+                    <FormLabel>Nº da Agência</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Ex: 0406-5"
+                        inputMode="numeric"
+                        onChange={(e) => {
+                          const value = e.target.value;
+
+                          const sanitizedValue = value.replace(/[^0-9.-]/g, '');
+                          onChange(sanitizedValue);
+                        }}
+                        {...restField}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
             <FormField
               control={form.control}
