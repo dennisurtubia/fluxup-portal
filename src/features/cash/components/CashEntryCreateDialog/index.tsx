@@ -322,13 +322,13 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
                         </SelectTrigger>
                         <SelectContent>
                           {bankAccounts?.map((bankAccount) => {
-                            const { logo, label } = getBankDisplayData(bankAccount.bank);
+                            const { logo } = getBankDisplayData(bankAccount.bank);
 
                             return (
                               <SelectItem key={bankAccount.id} value={bankAccount.id.toString()}>
                                 <div className="flex items-center gap-2">
                                   {logo}
-                                  {label}
+                                  {bankAccount.name}
                                 </div>
                               </SelectItem>
                             );
