@@ -54,4 +54,33 @@ export const PartyDataColumns: ColumnDef<PartyType>[] = [
     ),
     cell: ({ row }) => <div className="font-medium">{row.getValue('email')}</div>,
   },
+  {
+    accessorKey: 'type',
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        >
+          Tipo
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const partyTypeMappingDisplay = {
+        supplier: 'Fornecedor',
+        seat_holder: 'Cadeira',
+        sponsor: 'Patrocinador',
+        directorship: 'Diretoria',
+        collaborator: 'Colaborador',
+        customer: 'Cliente',
+      };
+
+      type PartyTypeKey = keyof typeof partyTypeMappingDisplay;
+      const type = row.getValue('type') as PartyTypeKey;
+
+      return <div className="font-medium">{partyTypeMappingDisplay[type]}</div>;
+    },
+  },
 ];

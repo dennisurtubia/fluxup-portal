@@ -26,6 +26,13 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { formatDocument } from '@/utils/mask/formaDocument';
 import { formatPhone } from '@/utils/mask/formatPhone';
 import { formatZipCode } from '@/utils/mask/formatZipCode';
@@ -50,6 +57,7 @@ const personalSchema = z.object({
       message: 'Telefone deve ter 10 ou 11 dígitos (somente números)',
     }),
   email: z.string({ required_error: 'Email é obrigatório' }).email('Email inválido'),
+  type: z.enum(['supplier', 'seat_holder', 'sponsor', 'directorship', 'collaborator', 'customer']),
 });
 type PersonalData = z.infer<typeof personalSchema>;
 
@@ -245,6 +253,32 @@ const PartyCreateDialog = forwardRef<PartyCreateDialogRef>((_, ref) => {
                         maxLength={18}
                         placeholder="000.000.000-00 ou 00.000.000/0000-00"
                       />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={personalForm.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tipo</FormLabel>
+                    <FormControl>
+                      <Select onValueChange={field.onChange}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Tipo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="seat_holder">Cadeira</SelectItem>
+                          <SelectItem value="supplier">Cliente</SelectItem>
+                          <SelectItem value="collaborator">Colaborador</SelectItem>
+                          <SelectItem value="directorship">Diretoria</SelectItem>
+                          <SelectItem value="supplier">Fornecedor</SelectItem>
+                          <SelectItem value="sponsor">Patrocinador</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
