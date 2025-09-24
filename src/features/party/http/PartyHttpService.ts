@@ -8,6 +8,7 @@ export type PartyType = {
   email: string;
   created_at: string;
   updated_at: string;
+  type: 'supplier' | 'seat_holder' | 'sponsor' | 'directorship' | 'collaborator' | 'customer';
 };
 
 export type PartyDataType = {
@@ -15,6 +16,7 @@ export type PartyDataType = {
   document: string;
   phone_number: string;
   email: string;
+  type: 'supplier' | 'seat_holder' | 'sponsor' | 'directorship' | 'collaborator' | 'customer';
   address: {
     street: string;
     number: string;
