@@ -272,7 +272,7 @@ const PartyCreateDialog = forwardRef<PartyCreateDialogRef>((_, ref) => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="seat_holder">Cadeira</SelectItem>
-                          <SelectItem value="supplier">Cliente</SelectItem>
+                          <SelectItem value="customer">Cliente</SelectItem>
                           <SelectItem value="collaborator">Colaborador</SelectItem>
                           <SelectItem value="directorship">Diretoria</SelectItem>
                           <SelectItem value="supplier">Fornecedor</SelectItem>

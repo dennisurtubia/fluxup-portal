@@ -8,7 +8,9 @@ export type PartyType = {
   email: string;
   created_at: string;
   updated_at: string;
-  type: 'supplier' | 'seat_holder' | 'sponsor' | 'directorship' | 'collaborator' | 'customer';
+  types: Array<
+    'supplier' | 'seat_holder' | 'sponsor' | 'directorship' | 'collaborator' | 'customer'
+  >;
 };
 
 export type PartyDataType = {

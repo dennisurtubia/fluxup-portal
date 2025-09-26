@@ -55,7 +55,7 @@ export const PartyDataColumns: ColumnDef<PartyType>[] = [
     cell: ({ row }) => <div className="font-medium">{row.getValue('email')}</div>,
   },
   {
-    accessorKey: 'type',
+    accessorKey: 'types',
     header: ({ column }) => {
       return (
         <Button
@@ -77,10 +77,17 @@ export const PartyDataColumns: ColumnDef<PartyType>[] = [
         customer: 'Cliente',
       };
 
-      type PartyTypeKey = keyof typeof partyTypeMappingDisplay;
-      const type = row.getValue('type') as PartyTypeKey;
+      const types = row.getValue('types') as Array<keyof typeof partyTypeMappingDisplay>;
 
-      return <div className="font-medium">{partyTypeMappingDisplay[type]}</div>;
+      return (
+        <div className="flex flex-wrap gap-1">
+          {types.map((type) => (
+            <span key={type} className="px-2 py-0.5 text-xs bg-muted text-muted-foreground rounded">
+              {partyTypeMappingDisplay[type]}
+            </span>
+          ))}
+        </div>
+      );
     },
   },
 ];
