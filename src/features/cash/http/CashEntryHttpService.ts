@@ -13,7 +13,7 @@ export type CashEntryBodyType = {
   category_id: number;
   bank_account_id: number;
   party_id: number;
-  payment_type: 'boleto' | 'pix' | 'ted' | 'credit_card' | 'debit_card';
+  payment_type: PaymentType;
 };
 
 export type CashEntryType = {
@@ -21,7 +21,7 @@ export type CashEntryType = {
   description: string;
   amount: number;
   type: 'income' | 'expense';
-  payment_type: 'boleto' | 'pix' | 'ted' | 'credit_card' | 'debit_card';
+  payment_type: PaymentType;
   tags: TagType[];
   created_at: string;
   updated_at: string;
@@ -30,6 +30,8 @@ export type CashEntryType = {
   bank_account: BankAccountType;
   party: PartyType;
 };
+
+export type PaymentType = 'boleto' | 'pix' | 'ted' | 'credit_card' | 'debit_card' | 'direct_debit';
 
 class CashEntryService extends HttpService {
   async getCashEntries(id: number) {
