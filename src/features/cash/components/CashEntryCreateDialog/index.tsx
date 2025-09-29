@@ -51,7 +51,7 @@ const cashEntryCreateSchema = z.object({
   description: z.string().max(40, 'A descrição deve ter no máximo 40 caracteres'),
   amount: z.number({ required_error: 'O valor é obrigatório' }),
   type: z.enum(['income', 'expense']),
-  payment_type: z.enum(['boleto', 'ted', 'pix', 'credit_card', 'debit_card']),
+  payment_type: z.enum(['boleto', 'ted', 'pix', 'credit_card', 'debit_card', 'direct_debit']),
   transaction_date: z.date(),
   tags: z.array(z.number().int()).optional(),
   category_id: z.string(),
@@ -213,6 +213,7 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
+                    <FormLabel>Descrição</FormLabel>
                     <FormControl>
                       <Input placeholder="Ex: Viagem" {...field} />
                     </FormControl>
