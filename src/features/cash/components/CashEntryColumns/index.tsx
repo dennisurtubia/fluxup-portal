@@ -1,9 +1,9 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 
-import { CashEntryType } from '../../http/CashEntryHttpService';
+import { CashEntryType, PaymentType } from '../../http/CashEntryHttpService';
 import { getBankDisplayData } from '../CashEntryCreateDialog/utils/bank-utils';
-import { PaymentType, paymentTypeLabel } from '../CashEntryCreateDialog/utils/payment_type-utils';
+import { paymentTypeLabel } from '../CashEntryCreateDialog/utils/payment_type-utils';
 
 import { Button } from '@/components/ui/button';
 import { BankAccountType } from '@/features/bank-account/http/BankAcoountHttpService';
