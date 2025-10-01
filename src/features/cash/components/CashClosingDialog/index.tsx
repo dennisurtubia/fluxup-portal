@@ -70,9 +70,7 @@ const CashClosingDialog = forwardRef<CashClosingDialogRef>((_, ref) => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>
-            Fechar caixa{cashName ? `: ${cashName}` : ''}?
-          </DialogTitle>
+          <DialogTitle>Fechar caixa{cashName ? `: ${cashName}` : ''}?</DialogTitle>
         </DialogHeader>
         <div>
           <div className="flex items-center p-2 justify-center">
