@@ -2,6 +2,7 @@ import { useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 
+import CashClosingDialog, { CashClosingDialogRef } from '../components/CashClosingDialog';
 import CashEntryCreateDialog, {
   CashEntryCreateDialogRef,
 } from '../components/CashEntryCreateDialog';
@@ -18,22 +19,36 @@ export default function CashEntriesPage() {
   const location = useLocation();
   const { name } = location.state || {};
 
-  const dialogRef = useRef<CashEntryCreateDialogRef>(null);
+  const dialogCreateRef = useRef<CashEntryCreateDialogRef>(null);
+  const dialogClosingRef = useRef<CashClosingDialogRef>(null);
 
   const handleCreateCashEntry = useCallback(() => {
-    dialogRef.current?.setCashId(Number(id));
-    dialogRef.current?.open();
+    dialogCreateRef.current?.setCashId(Number(id));
+    dialogCreateRef.current?.open();
   }, [id]);
+
+  const handleClosingCash = useCallback(() => {
+    dialogClosingRef.current?.setCashId(Number(id));
+    dialogClosingRef.current?.SetNameCash(name);
+    dialogClosingRef.current?.open();
+  }, [id, name]);
 
   return (
     <div className="h-full w-full">
       <div className="flex justify-between items-center mb-5">
         <HeaderNavigation title={name} />
-        <Button variant="default" onClick={handleCreateCashEntry}>
-          Nova Entrada
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="default" onClick={handleCreateCashEntry}>
+            Nova Entrada
+          </Button>
 
-        <CashEntryCreateDialog ref={dialogRef} />
+          <Button variant="default" onClick={handleClosingCash}>
+            Fechar caixa
+          </Button>
+        </div>
+
+        <CashEntryCreateDialog ref={dialogCreateRef} />
+        <CashClosingDialog ref={dialogClosingRef} />
       </div>
 
       <CashEntryTable cashId={Number(id)} />
