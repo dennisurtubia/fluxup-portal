@@ -48,7 +48,7 @@ const CashClosingDialog = forwardRef<CashClosingDialogRef>((_, ref) => {
       setOpen(false);
 
       toast.success('Caixa fechado com sucesso!');
-      if (data?.url) autoDownloadFromUrl(data.url, 'fechamento-caixa.pdf');
+      if (data?.url) autoDownloadFromUrl(data.url, `fechamento-caixa-${new Date()}.pdf`);
     },
     onError: () => {
       toast.error('Erro ao fechar o caixa.');
