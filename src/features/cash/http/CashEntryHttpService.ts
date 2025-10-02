@@ -31,7 +31,14 @@ export type CashEntryType = {
   party: PartyType;
 };
 
-export type PaymentType = 'boleto' | 'pix' | 'ted' | 'credit_card' | 'debit_card' | 'direct_debit';
+export type PaymentType =
+  | 'boleto'
+  | 'pix'
+  | 'ted'
+  | 'credit_card'
+  | 'debit_card'
+  | 'direct_debit'
+  | 'cash';
 
 class CashEntryService extends HttpService {
   async getCashEntries(id: number) {
