@@ -1,4 +1,4 @@
-export type PaymentType = 'boleto' | 'pix' | 'ted' | 'credit_card' | 'debit_card';
+import { PaymentType } from '@/features/cash/http/CashEntryHttpService';
 
 export const paymentTypeLabel: Record<PaymentType, string> = {
   boleto: 'Boleto',
@@ -6,6 +6,8 @@ export const paymentTypeLabel: Record<PaymentType, string> = {
   ted: 'TED',
   credit_card: 'Cartão de Crédito',
   debit_card: 'Cartão de Débito',
+  direct_debit: 'Débito em conta',
+  cash: 'Dinheiro',
 };
 
 export const paymentTypeOptions = Object.entries(paymentTypeLabel) as [PaymentType, string][];

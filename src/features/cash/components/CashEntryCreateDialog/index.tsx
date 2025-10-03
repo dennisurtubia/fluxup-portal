@@ -34,6 +34,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Steps, Step } from '@/components/ui/steps';
 import {
   bankAccountHttpServiceInstance,
   BankAccountType,
@@ -51,11 +52,11 @@ const cashEntryCreateSchema = z.object({
   description: z.string().max(40, 'A descrição deve ter no máximo 40 caracteres'),
   amount: z.number({ required_error: 'O valor é obrigatório' }),
   type: z.enum(['income', 'expense']),
-  payment_type: z.enum(['boleto', 'ted', 'pix', 'credit_card', 'debit_card']),
+  payment_type: z.enum(['boleto', 'ted', 'pix', 'credit_card', 'debit_card', 'cash']),
   transaction_date: z.date(),
   tags: z.array(z.number().int()).optional(),
   category_id: z.string(),
-  bank_account_id: z.string(),
+  bank_account_id: z.string({ required_error: 'A conta bancária é obrigatória' }),
   party_id: z.string(),
 });
 
@@ -70,6 +71,7 @@ type CashEntryCreateData = z.infer<typeof cashEntryCreateSchema>;
 const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
   const [open, setOpen] = useState(false);
   const [cashId, setCashId] = useState<number | null>(null);
+  const [currentStep, setCurrentStep] = useState(0);
   const queryClient = useQueryClient();
 
   const form = useForm<CashEntryCreateData>({
@@ -81,8 +83,14 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
   });
 
   useImperativeHandle(ref, () => ({
-    open: () => setOpen(true),
-    close: () => setOpen(false),
+    open: () => {
+      setOpen(true);
+      setCurrentStep(0);
+    },
+    close: () => {
+      setOpen(false);
+      setCurrentStep(0);
+    },
     setCashId: (newCashId: number) => setCashId(newCashId),
   }));
 
@@ -103,6 +111,7 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
       queryClient.invalidateQueries({ queryKey: ['cash-entry', 1] });
 
       setOpen(false);
+      setCurrentStep(0);
       form.reset();
 
       toast.success('Entrada criada com sucesso!');
@@ -118,6 +127,29 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
     },
     [cashMutation],
   );
+
+  const validateCurrentStep = async () => {
+    const fieldsToValidate =
+      currentStep === 0
+        ? ['category_id', 'description', 'transaction_date', 'type', 'payment_type', 'party_id']
+        : ['amount', 'bank_account_id'];
+
+    const isValid = await form.trigger(fieldsToValidate as (keyof CashEntryCreateData)[]);
+    return isValid;
+  };
+
+  const handleNextStep = async () => {
+    const isValid = await validateCurrentStep();
+    if (isValid && currentStep < 1) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handlePreviousStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
 
   const { data: tags, isLoading: isLoadingTags } = useQuery<TagType[] | undefined>({
     queryKey: ['tags', 1],
@@ -164,8 +196,249 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
       form.reset(undefined, {
         keepErrors: false,
       });
+      setCurrentStep(0);
     }
   }, [open, form]);
+
+  const renderFirstStep = useCallback(() => {
+    return (
+      <>
+        {currentStep === 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="category_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Categoria</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue
+                          placeholder={
+                            isLoadingCategories
+                              ? 'Carregando categorias...'
+                              : 'Selecione a categoria'
+                          }
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories
+                          ? categories.map((category) => (
+                              <SelectItem key={category.name} value={category.id.toString()}>
+                                {category.name}
+                              </SelectItem>
+                            ))
+                          : []}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Descrição</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Ex: Viagem" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="transaction_date"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Data de transação</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={'outline'}
+                          className={cn(
+                            'w-full pl-3 text-left font-normal',
+                            !field.value && 'text-muted-foreground',
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, 'dd/MM/yyyy')
+                          ) : (
+                            <span>Selecione uma data</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        initialFocus
+                        disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tipo de entrada</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger className=" w-full ">
+                        <SelectValue placeholder="Selecione o tipo" />
+                      </SelectTrigger>
+                      <SelectContent ref={field.ref}>
+                        <SelectItem value="income">Receita</SelectItem>
+                        <SelectItem value="expense">Despesa</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="payment_type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Forma de Pagamento</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger className=" w-full ">
+                        <SelectValue placeholder="Selecione a forma de pagamento" />
+                      </SelectTrigger>
+                      <SelectContent ref={field.ref}>
+                        {paymentTypeOptions.map(([value, label]) => (
+                          <SelectItem key={value} value={value}>
+                            {label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="party_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Parceiro</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue
+                          placeholder={
+                            isLoadingParties ? 'Carregando parceiros...' : 'Selecione o parceiro'
+                          }
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {parties
+                          ? parties.map((party) => (
+                              <SelectItem key={party.id} value={party.id.toString()}>
+                                {party.name}
+                              </SelectItem>
+                            ))
+                          : []}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Agrupadores</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={tags ? tags.map((tag) => ({ value: tag.id, label: tag.name })) : []}
+                      selected={field.value || []}
+                      onChange={field.onChange}
+                      placeholder={
+                        isLoadingTags ? 'Carregando Agrupadores...' : 'Selecione os Agrupadores'
+                      }
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
+      </>
+    );
+  }, [
+    categories,
+    currentStep,
+    form,
+    isLoadingCategories,
+    isLoadingParties,
+    isLoadingTags,
+    parties,
+    tags,
+  ]);
+
+  const renderSecondStep = useCallback(() => {
+    return (
+      <>
+        {currentStep === 1 && (
+          <div className="flex flex-col gap-4">
+            <div>
+              <CurrencyInput form={form} placeholder="Ex: R$100,00" name="amount" label="Valor" />
+            </div>
+            <FormField
+              control={form.control}
+              name="bank_account_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Conta bancária</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <SelectTrigger className="w-full">
+                        <SelectValue
+                          placeholder={
+                            isLoadingBankAccounts ? 'Carregando contas...' : 'Selecione a conta'
+                          }
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {bankAccounts?.map((bankAccount) => {
+                          const { logo } = getBankDisplayData(bankAccount.bank);
+
+                          return (
+                            <SelectItem key={bankAccount.id} value={bankAccount.id.toString()}>
+                              <div className="flex items-center gap-2">
+                                {logo}
+                                {bankAccount.name}
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
+      </>
+    );
+  }, [bankAccounts, currentStep, form, isLoadingBankAccounts]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -174,224 +447,35 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
           <DialogTitle>Criar entrada</DialogTitle>
           <DialogDescription>Preencha os detalhes para criar uma nova entrada.</DialogDescription>
         </DialogHeader>
+        <div className="mb-6">
+          <Steps current={currentStep} className="justify-center">
+            <Step title="Informações Gerais" description="Dados básicos da entrada" />
+            <Step title="Valor" description="Defina o valor da entrada" />
+          </Steps>
+        </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="category_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Categoria</FormLabel>
-                    <FormControl>
-                      <Select onValueChange={field.onChange}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue
-                            placeholder={
-                              isLoadingCategories
-                                ? 'Carregando categorias...'
-                                : 'Selecione a categoria'
-                            }
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories
-                            ? categories.map((category) => (
-                                <SelectItem key={category.name} value={category.id.toString()}>
-                                  {category.name}
-                                </SelectItem>
-                              ))
-                            : []}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                  </FormItem>
+            {renderFirstStep()}
+            {renderSecondStep()}
+            <DialogFooter className="flex justify-between mt-6">
+              <div className="flex gap-2">
+                {currentStep > 0 && (
+                  <Button type="button" variant="outline" onClick={handlePreviousStep}>
+                    Voltar
+                  </Button>
                 )}
-              />
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <Input placeholder="Ex: Viagem" {...field} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              <div>
-                <FormLabel>Valor</FormLabel>
-                <CurrencyInput form={form} placeholder="Ex: R$100,00" name="amount" />
               </div>
-              <FormField
-                control={form.control}
-                name="transaction_date"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Data de transação</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={'outline'}
-                            className={cn(
-                              'w-full pl-3 text-left font-normal',
-                              !field.value && 'text-muted-foreground',
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, 'dd/MM/yyyy')
-                            ) : (
-                              <span>Selecione uma data</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          initialFocus
-                          disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </FormItem>
+              <div className="flex gap-2">
+                {currentStep < 1 ? (
+                  <Button type="button" onClick={handleNextStep}>
+                    Próximo
+                  </Button>
+                ) : (
+                  <Button type="submit" disabled={cashMutation.isPending}>
+                    {cashMutation.isPending ? 'Salvando...' : 'Salvar'}
+                  </Button>
                 )}
-              />
-              <FormField
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tipo de entrada</FormLabel>
-                    <FormControl>
-                      <Select onValueChange={field.onChange}>
-                        <SelectTrigger className=" w-full ">
-                          <SelectValue placeholder="Selecione o tipo" />
-                        </SelectTrigger>
-                        <SelectContent ref={field.ref}>
-                          <SelectItem value="income">Receita</SelectItem>
-                          <SelectItem value="expense">Despesa</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="payment_type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Forma de Pagamento</FormLabel>
-                    <FormControl>
-                      <Select onValueChange={field.onChange}>
-                        <SelectTrigger className=" w-full ">
-                          <SelectValue placeholder="Selecione a forma de pagamento" />
-                        </SelectTrigger>
-                        <SelectContent ref={field.ref}>
-                          {paymentTypeOptions.map(([value, label]) => (
-                            <SelectItem key={value} value={value}>
-                              {label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="bank_account_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Conta bancária</FormLabel>
-                    <FormControl>
-                      <Select onValueChange={field.onChange}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue
-                            placeholder={
-                              isLoadingBankAccounts ? 'Carregando contas...' : 'Selecione a conta'
-                            }
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {bankAccounts?.map((bankAccount) => {
-                            const { logo } = getBankDisplayData(bankAccount.bank);
-
-                            return (
-                              <SelectItem key={bankAccount.id} value={bankAccount.id.toString()}>
-                                <div className="flex items-center gap-2">
-                                  {logo}
-                                  {bankAccount.name}
-                                </div>
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="party_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Parceiro</FormLabel>
-                    <FormControl>
-                      <Select onValueChange={field.onChange}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue
-                            placeholder={
-                              isLoadingParties ? 'Carregando parceiros...' : 'Selecione o parceiro'
-                            }
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {parties
-                            ? parties.map((party) => (
-                                <SelectItem key={party.id} value={party.id.toString()}>
-                                  {party.name}
-                                </SelectItem>
-                              ))
-                            : []}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="tags"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Agrupadores</FormLabel>
-                    <FormControl>
-                      <MultiSelect
-                        options={
-                          tags ? tags.map((tag) => ({ value: tag.id, label: tag.name })) : []
-                        }
-                        selected={field.value || []}
-                        onChange={field.onChange}
-                        placeholder={
-                          isLoadingTags ? 'Carregando Agrupadores...' : 'Selecione os Agrupadores'
-                        }
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
-            <DialogFooter>
-              <Button type="submit">Salvar</Button>
+              </div>
             </DialogFooter>
           </form>
         </Form>
