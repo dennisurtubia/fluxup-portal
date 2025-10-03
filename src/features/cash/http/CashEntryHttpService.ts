@@ -6,14 +6,17 @@ import { HttpService } from '@/http/HttpService';
 
 export type CashEntryBodyType = {
   description: string;
-  amount: number;
   type: 'income' | 'expense';
   tags?: number[];
   transaction_date: string;
   category_id: number;
-  bank_account_id: number;
   party_id: number;
   payment_type: PaymentType;
+  items: Array<{
+    amount: number;
+    bank_account_id: number;
+    description: string;
+  }>;
 };
 
 export type CashEntryType = {

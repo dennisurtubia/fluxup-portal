@@ -1,13 +1,14 @@
 import { useReducer } from 'react';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 import { Input } from '../ui/input';
-import { UseFormReturn } from 'react-hook-form';
+import { Control, UseFormReturn } from 'react-hook-form';
 
 type TextInputProps = {
-  form: UseFormReturn<any>;
+  form?: UseFormReturn<any>;
   name: string;
   placeholder: string;
   label?: string;
+  control?: Control<any>;
 };
 
 const moneyFormatter = Intl.NumberFormat('pt-BR', {
@@ -20,8 +21,8 @@ const moneyFormatter = Intl.NumberFormat('pt-BR', {
 });
 
 function CurrencyInput(props: TextInputProps) {
-  const initialValue = props.form.getValues()[props.name]
-    ? moneyFormatter.format(props.form.getValues()[props.name])
+  const initialValue = props.form?.getValues()[props.name]
+    ? moneyFormatter.format(props.form?.getValues()[props.name])
     : '';
 
   const [value, setValue] = useReducer((_: any, next: string) => {
@@ -37,7 +38,7 @@ function CurrencyInput(props: TextInputProps) {
 
   return (
     <FormField
-      control={props.form.control}
+      control={props.control ? props.control : props.form?.control}
       name={props.name}
       render={({ field }) => {
         field.value = value;

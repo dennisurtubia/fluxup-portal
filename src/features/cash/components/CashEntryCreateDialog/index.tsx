@@ -8,13 +8,12 @@ import { toast } from 'react-toastify';
 import { z } from 'zod';
 
 import { cashEntryHttpServiceInstance } from '../../http/CashEntryHttpService';
+import EntryItemsFieldArray from '../EntryItemsFieldArray/EntryItemsFieldArray';
 
-import { getBankDisplayData } from './utils/bank-utils';
 import { paymentTypeOptions } from './utils/payment_type-utils';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { CurrencyInput } from '@/components/ui/currency-input';
 import {
   Dialog,
   DialogContent,
@@ -36,10 +35,6 @@ import {
 } from '@/components/ui/select';
 import { Steps, Step } from '@/components/ui/steps';
 import {
-  bankAccountHttpServiceInstance,
-  BankAccountType,
-} from '@/features/bank-account/http/BankAcoountHttpService';
-import {
   categoryHttpServiceInstance,
   CategoryType,
 } from '@/features/categories/http/CategoryHttpService';
@@ -50,14 +45,21 @@ import { cn } from '@/lib/utils';
 
 const cashEntryCreateSchema = z.object({
   description: z.string().max(40, 'A descrição deve ter no máximo 40 caracteres'),
-  amount: z.number({ required_error: 'O valor é obrigatório' }),
   type: z.enum(['income', 'expense']),
   payment_type: z.enum(['boleto', 'ted', 'pix', 'credit_card', 'debit_card', 'cash']),
   transaction_date: z.date(),
   tags: z.array(z.number().int()).optional(),
   category_id: z.string(),
-  bank_account_id: z.string({ required_error: 'A conta bancária é obrigatória' }),
   party_id: z.string(),
+  items: z
+    .array(
+      z.object({
+        amount: z.number().min(0.01, 'Valor deve ser maior que zero'),
+        bank_account_id: z.number().min(1, 'Selecione uma conta bancária'),
+        description: z.string(),
+      }),
+    )
+    .min(1, 'Pelo menos um item é obrigatório'),
 });
 
 export type CashEntryCreateDialogRef = {
@@ -79,6 +81,12 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
     mode: 'onTouched',
     defaultValues: {
       description: '',
+      items: [
+        {
+          amount: 0,
+          bank_account_id: 0,
+        },
+      ],
     },
   });
 
@@ -101,10 +109,10 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
       return cashEntryHttpServiceInstance.createCashEntry(cashId, {
         ...data,
         category_id: Number(data.category_id),
-        bank_account_id: Number(data.bank_account_id),
         party_id: Number(data.party_id),
         transaction_date: data.transaction_date.toISOString(),
         tags: data.tags,
+        items: data.items,
       });
     },
     onSuccess: () => {
@@ -132,7 +140,7 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
     const fieldsToValidate =
       currentStep === 0
         ? ['category_id', 'description', 'transaction_date', 'type', 'payment_type', 'party_id']
-        : ['amount', 'bank_account_id'];
+        : ['items'];
 
     const isValid = await form.trigger(fieldsToValidate as (keyof CashEntryCreateData)[]);
     return isValid;
@@ -170,17 +178,6 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
       },
     },
   );
-
-  const { data: bankAccounts, isLoading: isLoadingBankAccounts } = useQuery<
-    BankAccountType[] | undefined
-  >({
-    queryKey: ['bank-accounts', 1],
-    retry: false,
-    queryFn: async () => {
-      const response = await bankAccountHttpServiceInstance.getBankAccounts();
-      return response;
-    },
-  });
 
   const { data: parties, isLoading: isLoadingParties } = useQuery<PartyType[] | undefined>({
     queryKey: ['parties', 1],
@@ -396,53 +393,20 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
     return (
       <>
         {currentStep === 1 && (
-          <div className="flex flex-col gap-4">
+          <div className="space-y-4">
             <div>
-              <CurrencyInput form={form} placeholder="Ex: R$100,00" name="amount" label="Valor" />
+              <label className="text-sm font-medium">Valores e Contas Bancárias</label>
+              <EntryItemsFieldArray control={form.control} name="items" minItems={1} />
             </div>
-            <FormField
-              control={form.control}
-              name="bank_account_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Conta bancária</FormLabel>
-                  <FormControl>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue
-                          placeholder={
-                            isLoadingBankAccounts ? 'Carregando contas...' : 'Selecione a conta'
-                          }
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {bankAccounts?.map((bankAccount) => {
-                          const { logo } = getBankDisplayData(bankAccount.bank);
-
-                          return (
-                            <SelectItem key={bankAccount.id} value={bankAccount.id.toString()}>
-                              <div className="flex items-center gap-2">
-                                {logo}
-                                {bankAccount.name}
-                              </div>
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
           </div>
         )}
       </>
     );
-  }, [bankAccounts, currentStep, form, isLoadingBankAccounts]);
+  }, [currentStep, form]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Criar entrada</DialogTitle>
           <DialogDescription>Preencha os detalhes para criar uma nova entrada.</DialogDescription>
@@ -450,7 +414,7 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
         <div className="mb-6">
           <Steps current={currentStep} className="justify-center">
             <Step title="Informações Gerais" description="Dados básicos da entrada" />
-            <Step title="Valor" description="Defina o valor da entrada" />
+            <Step title="Valores e Contas" description="Defina os valores e contas bancárias" />
           </Steps>
         </div>
         <Form {...form}>

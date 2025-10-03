@@ -82,10 +82,16 @@ export default function CashEntryCreatePage() {
       return cashEntryHttpServiceInstance.createCashEntry(cashId, {
         ...data,
         category_id: Number(data.category_id),
-        bank_account_id: Number(data.bank_account_id),
         party_id: Number(data.party_id),
         transaction_date: data.transaction_date.toISOString(),
         tags: data.tags,
+        items: [
+          {
+            amount: data.amount,
+            bank_account_id: Number(data.bank_account_id),
+            description: data.description,
+          },
+        ],
       });
     },
     onSuccess: () => {
