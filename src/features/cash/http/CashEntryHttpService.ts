@@ -1,4 +1,3 @@
-import { BankAccountType } from '@/features/bank-account/http/BankAcoountHttpService';
 import { CategoryType } from '@/features/categories/http/CategoryHttpService';
 import { PartyType } from '@/features/party/http/PartyHttpService';
 import { TagType } from '@/features/tag/http/TagHttpService';
@@ -11,9 +10,13 @@ export type CashEntryBodyType = {
   tags?: number[];
   transaction_date: string;
   category_id: number;
-  bank_account_id: number;
   party_id: number;
-  payment_type: 'boleto' | 'pix' | 'ted' | 'credit_card' | 'debit_card';
+  payment_type: PaymentType;
+  items: Array<{
+    amount: number;
+    bank_account_id: number;
+    description: string;
+  }>;
 };
 
 export type CashEntryType = {
@@ -21,15 +24,23 @@ export type CashEntryType = {
   description: string;
   amount: number;
   type: 'income' | 'expense';
-  payment_type: 'boleto' | 'pix' | 'ted' | 'credit_card' | 'debit_card';
+  payment_type: PaymentType;
   tags: TagType[];
   created_at: string;
   updated_at: string;
   transaction_date: string;
   category: CategoryType;
-  bank_account: BankAccountType;
   party: PartyType;
 };
+
+export type PaymentType =
+  | 'boleto'
+  | 'pix'
+  | 'ted'
+  | 'credit_card'
+  | 'debit_card'
+  | 'direct_debit'
+  | 'cash';
 
 class CashEntryService extends HttpService {
   async getCashEntries(id: number) {
