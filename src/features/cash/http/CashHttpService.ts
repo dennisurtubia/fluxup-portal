@@ -17,6 +17,10 @@ export type CashType = {
   name: string;
 };
 
+export type CashClosingUrl = {
+  url: string;
+};
+
 class CashService extends HttpService {
   async getCashEntries() {
     return this.get<CashType[]>('/cash-flows');
@@ -31,6 +35,10 @@ class CashService extends HttpService {
       start_date,
       end_date,
     });
+  }
+
+  async closingCash(id: number) {
+    return this.post<CashClosingUrl>(`/cash-flows/${id}/closings`);
   }
 }
 
