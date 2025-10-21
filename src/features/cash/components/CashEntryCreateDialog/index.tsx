@@ -2,8 +2,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
-import { forwardRef, useCallback, useImperativeHandle, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { z } from 'zod';
 
@@ -14,6 +14,7 @@ import { paymentTypeOptions } from './utils/payment_type-utils';
 
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import {
   Dialog,
   DialogContent,
@@ -51,6 +52,7 @@ const cashEntryCreateSchema = z.object({
   tags: z.array(z.number().int()).optional(),
   category_id: z.string(),
   party_id: z.string(),
+  amount: z.number({ required_error: 'O valor é obrigatório' }),
   items: z
     .array(
       z.object({
@@ -89,6 +91,13 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
       ],
     },
   });
+
+  const total = useWatch({ control: form.control, name: 'amount', defaultValue: 0.0 });
+  const totalItems = useWatch({ control: form.control, name: 'items', defaultValue: [] });
+
+  const computedTotalItems = useMemo(() => {
+    return totalItems.reduce((acc, item) => acc + (item.amount || 0), 0);
+  }, [totalItems]);
 
   useImperativeHandle(ref, () => ({
     open: () => {
@@ -303,6 +312,10 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
                 </FormItem>
               )}
             />
+            <div>
+              <FormLabel>Valor</FormLabel>
+              <CurrencyInput form={form} placeholder="Ex: R$100,00" name="amount" />
+            </div>
             <FormField
               control={form.control}
               name="payment_type"
@@ -393,16 +406,34 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
     return (
       <>
         {currentStep === 1 && (
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Valores e Contas Bancárias</label>
-              <EntryItemsFieldArray control={form.control} name="items" minItems={1} />
+          <div>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium">Valores e Contas Bancárias</label>
+                <EntryItemsFieldArray control={form.control} name="items" minItems={1} />
+              </div>
+            </div>
+
+            <div className="pt-4 border-t">
+              <div className="font-medium">Resumo</div>
+              <div className="flex justify-between">
+                <span className="text-sm">Total:</span>
+                <span className="font-bold">R$ {total}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm">Soma dos itens:</span>
+                <span>R$ {computedTotalItems}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm">Restante:</span>
+                <span>R$ {total - computedTotalItems}</span>
+              </div>
             </div>
           </div>
         )}
       </>
     );
-  }, [currentStep, form]);
+  }, [currentStep, form, total, computedTotalItems]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

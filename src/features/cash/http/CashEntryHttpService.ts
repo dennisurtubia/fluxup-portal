@@ -1,4 +1,3 @@
-import { BankAccountType } from '@/features/bank-account/http/BankAcoountHttpService';
 import { CategoryType } from '@/features/categories/http/CategoryHttpService';
 import { PartyType } from '@/features/party/http/PartyHttpService';
 import { TagType } from '@/features/tag/http/TagHttpService';
@@ -6,6 +5,7 @@ import { HttpService } from '@/http/HttpService';
 
 export type CashEntryBodyType = {
   description: string;
+  amount: number;
   type: 'income' | 'expense';
   tags?: number[];
   transaction_date: string;
@@ -30,7 +30,6 @@ export type CashEntryType = {
   updated_at: string;
   transaction_date: string;
   category: CategoryType;
-  bank_account: BankAccountType;
   party: PartyType;
 };
 

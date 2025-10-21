@@ -96,7 +96,7 @@ export function EntryItemsFieldArray<TFieldValues extends FieldValues = FieldVal
                       onValueChange={(val) => field.onChange(Number(val))}
                       disabled={disabled || isLoadingBankAccounts}
                     >
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger className="overflow-hidden w-full">
                         <SelectValue
                           placeholder={
                             isLoadingBankAccounts

@@ -1,12 +1,10 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown } from 'lucide-react';
 
-import { CashEntryType } from '../../http/CashEntryHttpService';
-import { getBankDisplayData } from '../CashEntryCreateDialog/utils/bank-utils';
-import { PaymentType, paymentTypeLabel } from '../CashEntryCreateDialog/utils/payment_type-utils';
+import { CashEntryType, PaymentType } from '../../http/CashEntryHttpService';
+import { paymentTypeLabel } from '../CashEntryCreateDialog/utils/payment_type-utils';
 
 import { Button } from '@/components/ui/button';
-import { BankAccountType } from '@/features/bank-account/http/BankAcoountHttpService';
 import { CategoryType } from '@/features/categories/http/CategoryHttpService';
 import { PartyType } from '@/features/party/http/PartyHttpService';
 import { formatCurrency } from '@/utils/mask/formatCurrency';
@@ -82,30 +80,6 @@ export const CashEntryColumns: ColumnDef<CashEntryType>[] = [
     },
   },
   {
-    accessorKey: 'bank_account',
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        >
-          Conta bancária
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
-    cell: ({ row }) => {
-      const bankAccount = row.getValue('bank_account') as BankAccountType;
-      const { logo } = getBankDisplayData(bankAccount.bank);
-      return (
-        <div className="font-medium flex items-center">
-          {logo}
-          <span className="ml-2">{bankAccount.name}</span>
-        </div>
-      );
-    },
-  },
-  {
     accessorKey: 'payment_type',
     header: ({ column }) => {
       return (
@@ -120,7 +94,7 @@ export const CashEntryColumns: ColumnDef<CashEntryType>[] = [
     },
     cell: ({ row }) => {
       const paymentTypeKey = row.getValue('payment_type') as PaymentType;
-      const paymentType = paymentTypeLabel[paymentTypeKey];
+      const paymentType = paymentTypeLabel[paymentTypeKey as keyof typeof paymentTypeLabel];
       return <div className="font-medium">{paymentType}</div>;
     },
   },
