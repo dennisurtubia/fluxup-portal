@@ -347,7 +347,7 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
                   <FormLabel>Parceiro</FormLabel>
                   <FormControl>
                     <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger className="w-full overflow-hidden">
                         <SelectValue
                           placeholder={
                             isLoadingParties ? 'Carregando parceiros...' : 'Selecione o parceiro'
