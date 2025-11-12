@@ -47,7 +47,15 @@ import { cn } from '@/lib/utils';
 const cashEntryCreateSchema = z.object({
   description: z.string().max(40, 'A descrição deve ter no máximo 40 caracteres'),
   type: z.enum(['income', 'expense']),
-  payment_type: z.enum(['boleto', 'ted', 'pix', 'credit_card', 'debit_card', 'cash']),
+  payment_type: z.enum([
+    'boleto',
+    'ted',
+    'pix',
+    'credit_card',
+    'debit_card',
+    'cash',
+    'direct_debit',
+  ]),
   transaction_date: z.date(),
   tags: z.array(z.number().int()).optional(),
   category_id: z.string(),
