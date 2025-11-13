@@ -40,7 +40,8 @@ export type PaymentType =
   | 'credit_card'
   | 'debit_card'
   | 'direct_debit'
-  | 'cash';
+  | 'cash'
+  | 'account_credit';
 
 class CashEntryService extends HttpService {
   async getCashEntries(id: number) {

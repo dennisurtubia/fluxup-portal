@@ -55,6 +55,7 @@ const cashEntryCreateSchema = z.object({
     'debit_card',
     'cash',
     'direct_debit',
+    'account_credit',
   ]),
   transaction_date: z.date(),
   tags: z.array(z.number().int()).optional(),
