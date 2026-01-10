@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
-import { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { z } from 'zod';
@@ -39,6 +39,7 @@ import {
   categoryHttpServiceInstance,
   CategoryType,
 } from '@/features/categories/http/CategoryHttpService';
+import { PartyCombobox } from '@/features/party/components/PartyCombobox';
 import { partiesHttpServiceInstance, PartyType } from '@/features/party/http/PartyHttpService';
 import { tagHttpServiceInstance, TagType } from '@/features/tag/http/TagHttpService';
 import { useDidMountUpdate } from '@/hooks/useDidMountUpdate';
@@ -85,6 +86,8 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
   const [open, setOpen] = useState(false);
   const [cashId, setCashId] = useState<number | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
+  const [partySearch, setPartySearch] = useState('');
+  const [selectedParty, setSelectedParty] = useState<PartyType | null>(null);
   const queryClient = useQueryClient();
 
   const form = useForm<CashEntryCreateData>({
@@ -103,10 +106,17 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
 
   const total = useWatch({ control: form.control, name: 'amount', defaultValue: 0.0 });
   const totalItems = useWatch({ control: form.control, name: 'items', defaultValue: [] });
+  const partyId = useWatch({ control: form.control, name: 'party_id', defaultValue: '' });
 
   const computedTotalItems = useMemo(() => {
     return totalItems.reduce((acc, item) => acc + (item.amount || 0), 0);
   }, [totalItems]);
+
+  useEffect(() => {
+    if (!partyId) {
+      setSelectedParty(null);
+    }
+  }, [partyId]);
 
   useImperativeHandle(ref, () => ({
     open: () => {
@@ -198,10 +208,14 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
   );
 
   const { data: parties, isLoading: isLoadingParties } = useQuery<PartyType[] | undefined>({
-    queryKey: ['parties', 1],
+    queryKey: ['parties', partySearch],
     retry: false,
     queryFn: async () => {
-      const response = await partiesHttpServiceInstance.getParties();
+      const response = await partiesHttpServiceInstance.getParties({
+        name: partySearch.trim(),
+        limit: 5,
+        offset: 1,
+      });
       return response;
     },
   });
@@ -355,24 +369,16 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
                 <FormItem>
                   <FormLabel>Parceiro</FormLabel>
                   <FormControl>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger className="w-full overflow-hidden">
-                        <SelectValue
-                          placeholder={
-                            isLoadingParties ? 'Carregando parceiros...' : 'Selecione o parceiro'
-                          }
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {parties
-                          ? parties.map((party) => (
-                              <SelectItem key={party.id} value={party.id.toString()}>
-                                {party.name}
-                              </SelectItem>
-                            ))
-                          : []}
-                      </SelectContent>
-                    </Select>
+                    <PartyCombobox
+                      value={field.value}
+                      onChange={field.onChange}
+                      parties={parties}
+                      isLoading={isLoadingParties}
+                      search={partySearch}
+                      onSearchChange={setPartySearch}
+                      selectedParty={selectedParty}
+                      onSelectedPartyChange={setSelectedParty}
+                    />
                   </FormControl>
                 </FormItem>
               )}
@@ -407,7 +413,9 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
     isLoadingCategories,
     isLoadingParties,
     isLoadingTags,
+    partySearch,
     parties,
+    selectedParty,
     tags,
   ]);
 

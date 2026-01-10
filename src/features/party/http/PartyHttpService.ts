@@ -31,9 +31,15 @@ export type PartyDataType = {
   };
 };
 
+export type GetPartiesParams = {
+  name?: string;
+  limit?: number;
+  offset?: number;
+};
+
 class PartyService extends HttpService {
-  async getParties() {
-    return this.get<PartyType[]>('/parties');
+  async getParties(params?: GetPartiesParams) {
+    return this.get<PartyType[]>('/parties', { params });
   }
 
   async createParty(data: PartyDataType) {

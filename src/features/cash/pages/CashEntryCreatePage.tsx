@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { ArrowLeft, CalendarIcon } from 'lucide-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -36,6 +36,7 @@ import {
   categoryHttpServiceInstance,
   CategoryType,
 } from '@/features/categories/http/CategoryHttpService';
+import { PartyCombobox } from '@/features/party/components/PartyCombobox';
 import { partiesHttpServiceInstance, PartyType } from '@/features/party/http/PartyHttpService';
 import { tagHttpServiceInstance, TagType } from '@/features/tag/http/TagHttpService';
 import { useDidMount } from '@/hooks/useDidMount';
@@ -63,6 +64,8 @@ type CashEntryCreateData = z.infer<typeof cashEntryCreateSchema>;
 export default function CashEntryCreatePage() {
   const [cashId, setCashId] = useState<number | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
+  const [partySearch, setPartySearch] = useState('');
+  const [selectedParty, setSelectedParty] = useState<PartyType | null>(null);
   const queryClient = useQueryClient();
   const { id } = useParams();
   const navigate = useNavigate();
@@ -113,6 +116,14 @@ export default function CashEntryCreatePage() {
     [cashMutation],
   );
 
+  const partyId = form.watch('party_id');
+
+  useEffect(() => {
+    if (!partyId) {
+      setSelectedParty(null);
+    }
+  }, [partyId]);
+
   const { data: tags, isLoading: isLoadingTags } = useQuery<TagType[] | undefined>({
     queryKey: ['tags', 1],
     retry: false,
@@ -145,10 +156,14 @@ export default function CashEntryCreatePage() {
   });
 
   const { data: parties, isLoading: isLoadingParties } = useQuery<PartyType[] | undefined>({
-    queryKey: ['parties', 1],
+    queryKey: ['parties', partySearch],
     retry: false,
     queryFn: async () => {
-      const response = await partiesHttpServiceInstance.getParties();
+      const response = await partiesHttpServiceInstance.getParties({
+        name: partySearch.trim(),
+        limit: 5,
+        offset: 1,
+      });
       return response;
     },
   });
@@ -369,24 +384,16 @@ export default function CashEntryCreatePage() {
                   <FormItem>
                     <FormLabel>Parceiro</FormLabel>
                     <FormControl>
-                      <Select onValueChange={field.onChange}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue
-                            placeholder={
-                              isLoadingParties ? 'Carregando parceiros...' : 'Selecione o parceiro'
-                            }
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {parties
-                            ? parties.map((party) => (
-                                <SelectItem key={party.id} value={party.id.toString()}>
-                                  {party.name}
-                                </SelectItem>
-                              ))
-                            : []}
-                        </SelectContent>
-                      </Select>
+                      <PartyCombobox
+                        value={field.value}
+                        onChange={field.onChange}
+                        parties={parties}
+                        isLoading={isLoadingParties}
+                        search={partySearch}
+                        onSearchChange={setPartySearch}
+                        selectedParty={selectedParty}
+                        onSelectedPartyChange={setSelectedParty}
+                      />
                     </FormControl>
                   </FormItem>
                 )}
