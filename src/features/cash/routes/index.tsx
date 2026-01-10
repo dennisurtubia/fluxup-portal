@@ -3,7 +3,6 @@ import { RouteObject } from 'react-router-dom';
 
 const CashPage = lazy(() => import('../pages/CashPage'));
 const CashEntriesPage = lazy(() => import('../pages/CashEntriesPage'));
-const CashEntryCreatePage = lazy(() => import('../pages/CashEntryCreatePage'));
 
 export const cashRouter: RouteObject[] = [
   {
@@ -13,9 +12,5 @@ export const cashRouter: RouteObject[] = [
   {
     path: '/app/cash/:id',
     element: <CashEntriesPage />,
-  },
-  {
-    path: '/app/cash/:id/entry/create',
-    element: <CashEntryCreatePage />,
   },
 ];

@@ -42,6 +42,7 @@ import {
 import { PartyCombobox } from '@/features/party/components/PartyCombobox';
 import { partiesHttpServiceInstance, PartyType } from '@/features/party/http/PartyHttpService';
 import { tagHttpServiceInstance, TagType } from '@/features/tag/http/TagHttpService';
+import { useDebounce } from '@/hooks/useDebounce';
 import { useDidMountUpdate } from '@/hooks/useDidMountUpdate';
 import { cn } from '@/lib/utils';
 
@@ -88,6 +89,7 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [partySearch, setPartySearch] = useState('');
   const [selectedParty, setSelectedParty] = useState<PartyType | null>(null);
+  const debouncedPartySearch = useDebounce(partySearch);
   const queryClient = useQueryClient();
 
   const form = useForm<CashEntryCreateData>({
@@ -208,13 +210,13 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
   );
 
   const { data: parties, isLoading: isLoadingParties } = useQuery<PartyType[] | undefined>({
-    queryKey: ['parties', partySearch],
+    queryKey: ['parties', debouncedPartySearch],
     retry: false,
     queryFn: async () => {
       const response = await partiesHttpServiceInstance.getParties({
-        name: partySearch.trim(),
+        name: debouncedPartySearch.trim(),
         limit: 5,
-        offset: 1,
+        offset: 0,
       });
       return response;
     },
