@@ -1,20 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { format } from 'date-fns';
-import { CalendarIcon } from 'lucide-react';
-import { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { z } from 'zod';
 
 import { cashEntryHttpServiceInstance } from '../../http/CashEntryHttpService';
-import EntryItemsFieldArray from '../EntryItemsFieldArray/EntryItemsFieldArray';
 
-import { paymentTypeOptions } from './utils/payment_type-utils';
+import { CashEntryStepOne } from './CashEntryStepOne';
+import { CashEntryStepTwo } from './CashEntryStepTwo';
 
 import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { CurrencyInput } from '@/components/ui/currency-input';
 import {
   Dialog,
   DialogContent,
@@ -23,26 +19,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { MultiSelect } from '@/components/ui/multi-select';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Steps, Step } from '@/components/ui/steps';
+import { Stepper } from '@/components/ui/stepper';
 import {
   categoryHttpServiceInstance,
   CategoryType,
 } from '@/features/categories/http/CategoryHttpService';
 import { partiesHttpServiceInstance, PartyType } from '@/features/party/http/PartyHttpService';
 import { tagHttpServiceInstance, TagType } from '@/features/tag/http/TagHttpService';
+import { useDebounce } from '@/hooks/useDebounce';
 import { useDidMountUpdate } from '@/hooks/useDidMountUpdate';
-import { cn } from '@/lib/utils';
 
 const cashEntryCreateSchema = z.object({
   description: z.string().max(40, 'A descrição deve ter no máximo 40 caracteres'),
@@ -73,6 +58,39 @@ const cashEntryCreateSchema = z.object({
     .min(1, 'Pelo menos um item é obrigatório'),
 });
 
+const cashEntryStepOneSchema = z.object({
+  category_id: z
+    .string({ required_error: 'Selecione uma categoria' })
+    .min(1, 'Selecione uma categoria'),
+  description: z.string().max(40, 'A descrição deve ter no máximo 40 caracteres'),
+  transaction_date: z.date({ required_error: 'Selecione uma data' }),
+  type: z.enum(['income', 'expense'], { required_error: 'Selecione o tipo de entrada' }),
+  payment_type: z.enum(
+    ['boleto', 'ted', 'pix', 'credit_card', 'debit_card', 'cash', 'direct_debit', 'account_credit'],
+    { required_error: 'Selecione a forma de pagamento' },
+  ),
+  party_id: z.string({ required_error: 'Selecione um parceiro' }).min(1, 'Selecione um parceiro'),
+  tags: z.array(z.number().int()).optional(),
+  amount: z
+    .number({ required_error: 'O valor é obrigatório' })
+    .min(0.01, 'O valor deve ser maior que zero'),
+});
+
+const cashEntryStepTwoSchema = cashEntryCreateSchema.pick({
+  items: true,
+});
+
+const STEPS = [
+  {
+    title: 'Informações Gerais',
+    description: 'Dados básicos da entrada',
+  },
+  {
+    title: 'Valores e Contas',
+    description: 'Defina os valores e contas bancárias',
+  },
+];
+
 export type CashEntryCreateDialogRef = {
   open: () => void;
   close: () => void;
@@ -80,33 +98,55 @@ export type CashEntryCreateDialogRef = {
 };
 
 type CashEntryCreateData = z.infer<typeof cashEntryCreateSchema>;
+type CashEntryStepOneData = z.infer<typeof cashEntryStepOneSchema>;
+type CashEntryStepTwoData = z.infer<typeof cashEntryStepTwoSchema>;
 
 const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
   const [open, setOpen] = useState(false);
   const [cashId, setCashId] = useState<number | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
+  const [partySearch, setPartySearch] = useState('');
+  const [selectedParty, setSelectedParty] = useState<PartyType | null>(null);
+  const debouncedPartySearch = useDebounce(partySearch);
   const queryClient = useQueryClient();
 
-  const form = useForm<CashEntryCreateData>({
-    resolver: zodResolver(cashEntryCreateSchema),
-    mode: 'onTouched',
+  const formStepOne = useForm<CashEntryStepOneData>({
+    resolver: zodResolver(cashEntryStepOneSchema),
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
     defaultValues: {
       description: '',
+    },
+  });
+
+  const formStepTwo = useForm<CashEntryStepTwoData>({
+    resolver: zodResolver(cashEntryStepTwoSchema),
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
+    defaultValues: {
       items: [
         {
           amount: 0,
           bank_account_id: 0,
+          description: '',
         },
       ],
     },
   });
 
-  const total = useWatch({ control: form.control, name: 'amount', defaultValue: 0.0 });
-  const totalItems = useWatch({ control: form.control, name: 'items', defaultValue: [] });
+  const total = useWatch({ control: formStepOne.control, name: 'amount', defaultValue: 0.0 });
+  const totalItems = useWatch({ control: formStepTwo.control, name: 'items', defaultValue: [] });
+  const partyId = useWatch({ control: formStepOne.control, name: 'party_id', defaultValue: '' });
 
   const computedTotalItems = useMemo(() => {
     return totalItems.reduce((acc, item) => acc + (item.amount || 0), 0);
   }, [totalItems]);
+
+  useEffect(() => {
+    if (!partyId) {
+      setSelectedParty(null);
+    }
+  }, [partyId]);
 
   useImperativeHandle(ref, () => ({
     open: () => {
@@ -138,7 +178,8 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
 
       setOpen(false);
       setCurrentStep(0);
-      form.reset();
+      formStepOne.reset();
+      formStepTwo.reset();
 
       toast.success('Entrada criada com sucesso!');
     },
@@ -147,29 +188,23 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
     },
   });
 
-  const onSubmit = useCallback(
-    (data: CashEntryCreateData) => {
-      cashMutation.mutate(data);
-    },
-    [cashMutation],
-  );
+  const handleSubmitStepOne = formStepOne.handleSubmit(async () => {
+    // Validação bem-sucedida, avança para o próximo step
+    setCurrentStep(1);
+    // Limpa os erros do step 2 ao entrar nele
+    formStepTwo.clearErrors();
+  });
 
-  const validateCurrentStep = async () => {
-    const fieldsToValidate =
-      currentStep === 0
-        ? ['category_id', 'description', 'transaction_date', 'type', 'payment_type', 'party_id']
-        : ['items'];
+  const handleSubmitStepTwo = formStepTwo.handleSubmit(async (dataStepTwo) => {
+    const dataStepOne = formStepOne.getValues();
 
-    const isValid = await form.trigger(fieldsToValidate as (keyof CashEntryCreateData)[]);
-    return isValid;
-  };
+    const data: CashEntryCreateData = {
+      ...dataStepOne,
+      ...dataStepTwo,
+    };
 
-  const handleNextStep = async () => {
-    const isValid = await validateCurrentStep();
-    if (isValid && currentStep < 1) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
+    cashMutation.mutate(data);
+  });
 
   const handlePreviousStep = () => {
     if (currentStep > 0) {
@@ -198,251 +233,33 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
   );
 
   const { data: parties, isLoading: isLoadingParties } = useQuery<PartyType[] | undefined>({
-    queryKey: ['parties', 1],
+    queryKey: ['parties', debouncedPartySearch],
     retry: false,
     queryFn: async () => {
-      const response = await partiesHttpServiceInstance.getParties();
+      const response = await partiesHttpServiceInstance.getParties({
+        name: debouncedPartySearch.trim(),
+        limit: 5,
+        offset: 0,
+      });
       return response;
     },
   });
 
   useDidMountUpdate(() => {
     if (open) {
-      form.reset(undefined, {
+      formStepOne.reset(undefined, {
         keepErrors: false,
+        keepDirty: false,
+        keepTouched: false,
+      });
+      formStepTwo.reset(undefined, {
+        keepErrors: false,
+        keepDirty: false,
+        keepTouched: false,
       });
       setCurrentStep(0);
     }
-  }, [open, form]);
-
-  const renderFirstStep = useCallback(() => {
-    return (
-      <>
-        {currentStep === 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="category_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Categoria</FormLabel>
-                  <FormControl>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue
-                          placeholder={
-                            isLoadingCategories
-                              ? 'Carregando categorias...'
-                              : 'Selecione a categoria'
-                          }
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories
-                          ? categories.map((category) => (
-                              <SelectItem key={category.name} value={category.id.toString()}>
-                                {category.name}
-                              </SelectItem>
-                            ))
-                          : []}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descrição</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ex: Viagem" {...field} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="transaction_date"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Data de transação</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={'outline'}
-                          className={cn(
-                            'w-full pl-3 text-left font-normal',
-                            !field.value && 'text-muted-foreground',
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, 'dd/MM/yyyy')
-                          ) : (
-                            <span>Selecione uma data</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        initialFocus
-                        disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tipo de entrada</FormLabel>
-                  <FormControl>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger className=" w-full ">
-                        <SelectValue placeholder="Selecione o tipo" />
-                      </SelectTrigger>
-                      <SelectContent ref={field.ref}>
-                        <SelectItem value="income">Receita</SelectItem>
-                        <SelectItem value="expense">Despesa</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <div>
-              <FormLabel>Valor</FormLabel>
-              <CurrencyInput form={form} placeholder="Ex: R$100,00" name="amount" />
-            </div>
-            <FormField
-              control={form.control}
-              name="payment_type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Forma de Pagamento</FormLabel>
-                  <FormControl>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger className=" w-full ">
-                        <SelectValue placeholder="Selecione a forma de pagamento" />
-                      </SelectTrigger>
-                      <SelectContent ref={field.ref}>
-                        {paymentTypeOptions.map(([value, label]) => (
-                          <SelectItem key={value} value={value}>
-                            {label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="party_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Parceiro</FormLabel>
-                  <FormControl>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger className="w-full overflow-hidden">
-                        <SelectValue
-                          placeholder={
-                            isLoadingParties ? 'Carregando parceiros...' : 'Selecione o parceiro'
-                          }
-                        />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {parties
-                          ? parties.map((party) => (
-                              <SelectItem key={party.id} value={party.id.toString()}>
-                                {party.name}
-                              </SelectItem>
-                            ))
-                          : []}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="tags"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Agrupadores</FormLabel>
-                  <FormControl>
-                    <MultiSelect
-                      options={tags ? tags.map((tag) => ({ value: tag.id, label: tag.name })) : []}
-                      selected={field.value || []}
-                      onChange={field.onChange}
-                      placeholder={
-                        isLoadingTags ? 'Carregando Agrupadores...' : 'Selecione os Agrupadores'
-                      }
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          </div>
-        )}
-      </>
-    );
-  }, [
-    categories,
-    currentStep,
-    form,
-    isLoadingCategories,
-    isLoadingParties,
-    isLoadingTags,
-    parties,
-    tags,
-  ]);
-
-  const renderSecondStep = useCallback(() => {
-    return (
-      <>
-        {currentStep === 1 && (
-          <div>
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium">Valores e Contas Bancárias</label>
-                <EntryItemsFieldArray control={form.control} name="items" minItems={1} />
-              </div>
-            </div>
-
-            <div className="pt-4 border-t">
-              <div className="font-medium">Resumo</div>
-              <div className="flex justify-between">
-                <span className="text-sm">Total:</span>
-                <span className="font-bold">R$ {total}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Soma dos itens:</span>
-                <span>R$ {computedTotalItems}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm">Restante:</span>
-                <span>R$ {total - computedTotalItems}</span>
-              </div>
-            </div>
-          </div>
-        )}
-      </>
-    );
-  }, [currentStep, form, total, computedTotalItems]);
+  }, [formStepOne, formStepTwo, open]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -451,38 +268,51 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
           <DialogTitle>Criar entrada</DialogTitle>
           <DialogDescription>Preencha os detalhes para criar uma nova entrada.</DialogDescription>
         </DialogHeader>
+
         <div className="mb-6">
-          <Steps current={currentStep} className="justify-center">
-            <Step title="Informações Gerais" description="Dados básicos da entrada" />
-            <Step title="Valores e Contas" description="Defina os valores e contas bancárias" />
-          </Steps>
+          <Stepper currentStep={currentStep} steps={STEPS} />
         </div>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {renderFirstStep()}
-            {renderSecondStep()}
-            <DialogFooter className="flex justify-between mt-6">
-              <div className="flex gap-2">
-                {currentStep > 0 && (
-                  <Button type="button" variant="outline" onClick={handlePreviousStep}>
-                    Voltar
-                  </Button>
-                )}
-              </div>
-              <div className="flex gap-2">
-                {currentStep < 1 ? (
-                  <Button type="button" onClick={handleNextStep}>
-                    Próximo
-                  </Button>
-                ) : (
-                  <Button type="submit" disabled={cashMutation.isPending}>
-                    {cashMutation.isPending ? 'Salvando...' : 'Salvar'}
-                  </Button>
-                )}
-              </div>
+
+        {currentStep === 0 && (
+          <form onSubmit={handleSubmitStepOne} className="space-y-4">
+            <CashEntryStepOne
+              form={formStepOne}
+              categories={categories}
+              isLoadingCategories={isLoadingCategories}
+              tags={tags}
+              isLoadingTags={isLoadingTags}
+              parties={parties}
+              isLoadingParties={isLoadingParties}
+              partySearch={partySearch}
+              onPartySearchChange={setPartySearch}
+              selectedParty={selectedParty}
+              onSelectedPartyChange={setSelectedParty}
+            />
+
+            <DialogFooter className="flex justify-end mt-6">
+              <Button type="submit">Próximo</Button>
             </DialogFooter>
           </form>
-        </Form>
+        )}
+
+        {currentStep === 1 && (
+          <form onSubmit={handleSubmitStepTwo} className="space-y-4">
+            <CashEntryStepTwo
+              form={formStepTwo}
+              total={total}
+              computedTotalItems={computedTotalItems}
+            />
+
+            <DialogFooter className="flex justify-between mt-6">
+              <Button type="button" variant="outline" onClick={handlePreviousStep}>
+                Voltar
+              </Button>
+              <Button type="submit" disabled={cashMutation.isPending}>
+                {cashMutation.isPending ? 'Salvando...' : 'Salvar'}
+              </Button>
+            </DialogFooter>
+          </form>
+        )}
       </DialogContent>
     </Dialog>
   );
