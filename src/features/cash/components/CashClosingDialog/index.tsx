@@ -74,7 +74,10 @@ const CashClosingDialog = forwardRef<CashClosingDialogRef>((_, ref) => {
         </DialogHeader>
         <div>
           <div className="flex items-center p-2 justify-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
+            <div
+              className="flex h-12 w-12 items-center justify-center
+                rounded-full bg-destructive/10"
+            >
               <AlertTriangle className="h-6 w-6 text-destructive" />
             </div>
           </div>

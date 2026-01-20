@@ -31,6 +31,7 @@ export type CashEntryType = {
   transaction_date: string;
   category: CategoryType;
   party: PartyType;
+  status: 'PENDING_APPROVAL' | 'APPROVED' | 'OVERDUE_PAYMENT' | 'PENDING_PAYMENT' | 'PAID';
 };
 
 export type PaymentType =
@@ -50,6 +51,10 @@ class CashEntryService extends HttpService {
 
   async createCashEntry(id: number, data: CashEntryBodyType) {
     return this.post(`/cash-flows/${id}/entries`, data);
+  }
+
+  async updateCashEntryStatus(cashFlowId: number, entryId: number, status: 'PAID' | 'APPROVED') {
+    return this.patch(`/cash-flows/${cashFlowId}/entries/${entryId}`, { status });
   }
 }
 
