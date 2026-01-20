@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { cashEntryHttpServiceInstance, CashEntryType } from '../../http/CashEntryHttpService';
-import { CashEntryColumns } from '../CashEntryColumns';
+import { getCashEntryColumns } from '../CashEntryColumns';
 
 import { DataTable } from '@/components/DataTable';
 import LoadingScreen from '@/components/Loading';
@@ -40,7 +40,7 @@ export function CashEntryTable({ cashId }: CashEntryProps) {
 
   return (
     <div className="h-full w-full">
-      <DataTable columns={CashEntryColumns} data={cashEntry || []} />
+      <DataTable columns={getCashEntryColumns({ cashFlowId: cashId })} data={cashEntry || []} />
     </div>
   );
 }
