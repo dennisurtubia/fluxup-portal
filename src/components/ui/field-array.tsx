@@ -79,7 +79,7 @@ export function FieldArray<TFieldValues extends FieldValues = FieldValues>({
               <X className="h-4 w-4" />
             </Button>
           )}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pr-10 w-full items-start">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-10 w-full items-start">
             {children(index, handleRemove)}
           </div>
         </div>

@@ -4,7 +4,6 @@ import { ArrayPath, Control, FieldValues, Path } from 'react-hook-form';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import FieldArray from '@/components/ui/field-array';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -115,20 +114,6 @@ export function EntryItemsFieldArray<TFieldValues extends FieldValues = FieldVal
                     </Select>
                   </FormControl>
                   <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-          <div className="w-full min-w-0">
-            <FormField
-              control={control}
-              name={`${name}.${index}.description` as unknown as Path<TFieldValues>}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descrição</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ex: Viagem" {...field} />
-                  </FormControl>
                 </FormItem>
               )}
             />

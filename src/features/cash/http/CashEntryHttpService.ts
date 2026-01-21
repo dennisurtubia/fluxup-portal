@@ -15,8 +15,12 @@ export type CashEntryBodyType = {
   items: Array<{
     amount: number;
     bank_account_id: number;
-    description: string;
   }>;
+};
+
+export type CashEntryItemType = {
+  amount: number;
+  bank_account_id: number;
 };
 
 export type CashEntryType = {
@@ -32,6 +36,7 @@ export type CashEntryType = {
   category: CategoryType;
   party: PartyType;
   status: 'PENDING_APPROVAL' | 'APPROVED' | 'OVERDUE_PAYMENT' | 'PENDING_PAYMENT' | 'PAID';
+  items: CashEntryItemType[];
 };
 
 export type PaymentType =
