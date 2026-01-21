@@ -9,6 +9,7 @@ import {
   cashEntryHttpServiceInstance,
 } from '../../http/CashEntryHttpService';
 import { paymentTypeLabel } from '../CashEntryCreateDialog/utils/payment_type-utils';
+import { EntryItemsCell } from '../EntryItemsCell';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -225,6 +226,14 @@ export const getCashEntryColumns = ({
           {statusInfo?.label || status}
         </Badge>
       );
+    },
+  },
+  {
+    accessorKey: 'items',
+    header: () => <div className="text-center">Itens</div>,
+    cell: ({ row }) => {
+      const entry = row.original;
+      return <EntryItemsCell items={entry.items} />;
     },
   },
   {
