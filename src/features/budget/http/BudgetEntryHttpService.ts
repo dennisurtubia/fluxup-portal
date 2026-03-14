@@ -13,6 +13,7 @@ export type BudgetEntryBodyType = {
   type: 'income' | 'expense';
   tags?: number[];
   category_id: number;
+  party_id?: number;
 };
 
 export type BudgetEntryType = {

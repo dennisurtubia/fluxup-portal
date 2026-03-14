@@ -43,7 +43,10 @@ import {
   categoryHttpServiceInstance,
   CategoryType,
 } from '@/features/categories/http/CategoryHttpService';
+import { PartyCombobox } from '@/features/party/components/PartyCombobox';
+import { partiesHttpServiceInstance, PartyType } from '@/features/party/http/PartyHttpService';
 import { tagHttpServiceInstance, TagType } from '@/features/tag/http/TagHttpService';
+import { useDebounce } from '@/hooks/useDebounce';
 import { formatMoneyInput } from '@/utils/mask/formatMoneyInput';
 
 const budgetEntryCreateSchema = z.object({
@@ -51,6 +54,7 @@ const budgetEntryCreateSchema = z.object({
   type: z.enum(['income', 'expense']),
   category_id: z.number(),
   tags: z.array(z.number()).optional(),
+  party_id: z.string().optional(),
   values: z
     .array(z.object({ month: z.number(), amount: z.number() }))
     .min(1, 'Informe ao menos um mês')
@@ -59,6 +63,8 @@ const budgetEntryCreateSchema = z.object({
       path: ['values'],
     }),
 });
+
+type BudgetEntryCreateData = z.infer<typeof budgetEntryCreateSchema>;
 
 export type BudgetEntryCreateDialogRef = {
   open: () => void;
@@ -74,6 +80,9 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
   const [initialMonth, setInitialMonth] = useState<string | null>(null);
   const [lastMonth, setLastMonth] = useState<string | null>(null);
   const [defaultValue, setDefaultValue] = useState<number>(0);
+  const [partySearch, setPartySearch] = useState('');
+  const [selectedParty, setSelectedParty] = useState<PartyType | null>(null);
+  const debouncedPartySearch = useDebounce(partySearch);
   const queryClient = useQueryClient();
 
   const form = useForm({
@@ -83,11 +92,19 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
       type: undefined,
       category_id: undefined,
       tags: [],
+      party_id: '',
       values: [],
     },
   });
 
   const watchedValues = useWatch({ control: form.control, name: 'values' });
+  const partnerId = useWatch({ control: form.control, name: 'party_id', defaultValue: '' });
+
+  useEffect(() => {
+    if (!partnerId) {
+      setSelectedParty(null);
+    }
+  }, [partnerId]);
 
   useImperativeHandle(ref, () => ({
     open: () => setOpen(true),
@@ -96,8 +113,6 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
     setInitialMonth: (m) => setInitialMonth(m),
     setLastMonth: (m) => setLastMonth(m),
   }));
-
-  type BudgetEntryCreateData = z.infer<typeof budgetEntryCreateSchema>;
 
   const { data: categories } = useQuery<CategoryType[]>({
     queryKey: ['categories', budgetId],
@@ -109,6 +124,18 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
     queryKey: ['tags', budgetId],
     queryFn: () => tagHttpServiceInstance.getTags(),
     retry: false,
+  });
+
+  const { data: parties, isLoading: isLoadingParties } = useQuery<PartyType[] | undefined>({
+    queryKey: ['parties', debouncedPartySearch],
+    retry: false,
+    queryFn: async () => {
+      return partiesHttpServiceInstance.getParties({
+        name: debouncedPartySearch.trim(),
+        limit: 5,
+        offset: 0,
+      });
+    },
   });
 
   const months = useMemo(() => {
@@ -153,7 +180,7 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
   };
 
   const budgetMutation = useMutation({
-    mutationFn: async (data: BudgetEntryCreateData) => {
+    mutationFn: async (data: BudgetEntryBodyType) => {
       if (budgetId == null) return null;
       return budgetEntryHttpServiceInstance.createBudgetEntry(budgetId, data);
     },
@@ -169,9 +196,10 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
   });
 
   const onSubmit = useCallback(
-    (data: BudgetEntryBodyType) => {
-      const dataConverted = {
+    (data: BudgetEntryCreateData) => {
+      const dataConverted: BudgetEntryBodyType = {
         ...data,
+        party_id: data.party_id ? Number(data.party_id) : undefined,
         values: data.values
           .filter((v) => typeof v.amount === 'number' && v.amount > 0)
           .map((v) => ({
@@ -253,6 +281,29 @@ const BudgetEntryCreateDialog = forwardRef<BudgetEntryCreateDialogRef>((_, ref) 
                             <SelectItem value="expense">Despesa</SelectItem>
                           </SelectContent>
                         </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="party_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Parceiro</FormLabel>
+                      <FormControl>
+                        <PartyCombobox
+                          value={field.value ?? ''}
+                          onChange={field.onChange}
+                          parties={parties}
+                          isLoading={isLoadingParties}
+                          search={partySearch}
+                          onSearchChange={setPartySearch}
+                          selectedParty={selectedParty}
+                          onSelectedPartyChange={setSelectedParty}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
