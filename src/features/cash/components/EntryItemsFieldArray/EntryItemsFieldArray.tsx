@@ -107,7 +107,7 @@ export function EntryItemsFieldArray<TFieldValues extends FieldValues = FieldVal
                       <SelectContent>
                         {bankAccounts?.map((account) => (
                           <SelectItem key={account.id} value={account.id.toString()}>
-                            {account.name}
+                            {`${account.name} | ${account.number}`}
                           </SelectItem>
                         )) || []}
                       </SelectContent>
