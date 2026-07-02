@@ -1,6 +1,41 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from 'axios';
 
 import { IHttpClient } from './IHttpClient';
+
+import { isTokenValid } from '@/lib/auth';
+
+const REFRESH_TOKEN_URL = '/auth/refresh_token';
+
+type RetriableRequestConfig = InternalAxiosRequestConfig & { _retry?: boolean };
+
+// Shared across every HttpService instance so that concurrent requests trigger
+// at most one refresh call and all wait on the same result.
+let refreshPromise: Promise<string> | null = null;
+
+async function refreshAccessToken(): Promise<string> {
+  if (!refreshPromise) {
+    // Lazy import avoids a circular dependency (AuthHttpService extends HttpService).
+    refreshPromise = import('@/features/login/http/AuthHttpService')
+      .then(({ authServiceHttpServiceInstance }) => authServiceHttpServiceInstance.refreshToken())
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+  return refreshPromise;
+}
+
+function handleRefreshFailure() {
+  localStorage.removeItem('token');
+  if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+    window.location.assign('/login');
+  }
+}
 
 export class HttpService implements IHttpClient {
   private readonly client: AxiosInstance;
@@ -16,7 +51,28 @@ export class HttpService implements IHttpClient {
 
     this.client.interceptors.response.use(
       (response) => response,
-      (error) => {
+      async (error: AxiosError<{ message?: string }>) => {
+        const originalRequest = error.config as RetriableRequestConfig | undefined;
+        const isRefreshCall = originalRequest?.url?.includes(REFRESH_TOKEN_URL);
+
+        // The token was rejected by the backend: refresh once and replay the request.
+        if (
+          error.response?.status === 401 &&
+          originalRequest &&
+          !originalRequest._retry &&
+          !isRefreshCall
+        ) {
+          originalRequest._retry = true;
+          try {
+            const token = await refreshAccessToken();
+            originalRequest.headers.Authorization = `Bearer ${token}`;
+            return this.client(originalRequest);
+          } catch (refreshError) {
+            handleRefreshFailure();
+            return Promise.reject(refreshError);
+          }
+        }
+
         if (error.response?.data?.message) {
           return Promise.reject(new Error(error.response.data.message));
         }
@@ -24,8 +80,21 @@ export class HttpService implements IHttpClient {
       },
     );
 
-    this.client.interceptors.request.use((config) => {
-      const token = localStorage.getItem('token');
+    this.client.interceptors.request.use(async (config) => {
+      let token = localStorage.getItem('token');
+      const isRefreshCall = config.url?.includes(REFRESH_TOKEN_URL);
+
+      // The frontend recognizes the token has expired (via its JWT exp claim) and
+      // refreshes it before the request goes out. The refresh call itself is skipped
+      // so it can still send the expired token the backend expects.
+      if (token && !isRefreshCall && !isTokenValid(token)) {
+        try {
+          token = await refreshAccessToken();
+        } catch {
+          handleRefreshFailure();
+        }
+      }
+
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
