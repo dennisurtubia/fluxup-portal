@@ -78,7 +78,9 @@ const BankAccountCreateDialog = forwardRef<BankAccountCreateDialogRef>((_, ref) 
       form.reset();
       toast.success('Conta bancária criada com sucesso!');
     },
-    onError: () => {},
+    onError: () => {
+      toast.error('Erro ao criar conta bancária. Tente novamente.');
+    },
   });
 
   const onSubmit = useCallback(

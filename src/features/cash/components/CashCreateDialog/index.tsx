@@ -72,7 +72,9 @@ const CashCreateDialog = forwardRef<CashCreateDialogRef>((_, ref) => {
       form.reset();
       toast.success('Caixa criado com sucesso!');
     },
-    onError: () => {},
+    onError: () => {
+      toast.error('Erro ao criar caixa. Tente novamente.');
+    },
   });
 
   const onSubmit = useCallback(

@@ -61,7 +61,9 @@ const CategoryCreateDialog = forwardRef<CategoryCreateDialogRef>((_, ref) => {
 
       toast.success('Categoria criada com sucesso!');
     },
-    onError: () => {},
+    onError: () => {
+      toast.error('Erro ao criar categoria. Tente novamente.');
+    },
   });
 
   const onSubmit = useCallback(

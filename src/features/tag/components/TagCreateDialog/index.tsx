@@ -61,7 +61,9 @@ const TagCreateDialog = forwardRef<TagCreateDialogRef>((_, ref) => {
 
       toast.success('Tag criada com sucesso!');
     },
-    onError: () => {},
+    onError: () => {
+      toast.error('Erro ao criar tag. Tente novamente.');
+    },
   });
 
   const onSubmit = useCallback(

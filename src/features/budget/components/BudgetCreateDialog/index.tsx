@@ -72,7 +72,9 @@ const BudgetCreateDialog = forwardRef<BudgetCreateDialogRef>((_, ref) => {
       form.reset();
       toast.success('Orçamento criado com sucesso!');
     },
-    onError: () => {},
+    onError: () => {
+      toast.error('Erro ao criar orçamento. Tente novamente.');
+    },
   });
 
   const onSubmit = useCallback(
