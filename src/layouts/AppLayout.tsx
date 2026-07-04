@@ -1,22 +1,26 @@
 import { Separator } from '@radix-ui/react-separator';
 import { Suspense } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 
 import LoadingScreen from '@/components/Loading';
 import { AppSidebar } from '@/components/Sidebar';
 import ThemeSwitch from '@/components/ThemeSwitch';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { getMenuList } from '@/constants/listMenu';
+import { cn } from '@/lib/utils';
 
 const AppLayout = () => {
-  const menuItems = getMenuList(window.location.pathname);
+  const { pathname } = useLocation();
+  const menuItems = getMenuList(pathname);
   return (
     <SidebarProvider>
       <AppSidebar menuItems={menuItems} />
       <SidebarInset>
         <header
-          className="flex sticky top-0 bg-background 
-        h-16 shrink-0 items-center gap-2 border-b px-4 z-10 justify-between"
+          className={cn(
+            'flex sticky top-0 z-10 h-16 shrink-0 items-center justify-between gap-2',
+            'border-b bg-background px-4',
+          )}
         >
           <div className="flex items-center">
             <SidebarTrigger className="-ml-1" />

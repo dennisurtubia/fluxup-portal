@@ -17,6 +17,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { cn } from '@/lib/utils';
 
 type SidebarUserProps = {
   user: {
@@ -53,14 +54,16 @@ export function SidebarUser({ user }: SidebarUserProps) {
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent
-              data-[state=open]:text-sidebar-accent-foreground"
+              className={cn(
+                'data-[state=open]:bg-sidebar-accent',
+                'data-[state=open]:text-sidebar-accent-foreground',
+              )}
             >
-              <Avatar className="h-8 w-8 flex rounded-lg grayscale items-center justify-center">
+              <Avatar className="h-8 w-8 flex rounded-lg items-center justify-center">
                 <AvatarFallback>{initialsParse}</AvatarFallback>
               </Avatar>
-              <p>{user.username}</p>
-              <MoreVerticalIcon className="ml-auto size-4" />
+              <p className="truncate min-w-0">{user.username}</p>
+              <MoreVerticalIcon className="ml-auto size-4 shrink-0" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -74,7 +77,7 @@ export function SidebarUser({ user }: SidebarUserProps) {
                 <Avatar className="h-8 w-8 rounded-lg items-center justify-center">
                   <AvatarFallback>{initialsParse}</AvatarFallback>
                 </Avatar>
-                <p>{user.username}</p>
+                <p className="truncate min-w-0">{user.username}</p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />

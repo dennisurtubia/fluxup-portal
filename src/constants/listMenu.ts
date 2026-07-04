@@ -1,4 +1,4 @@
-import { Home, Banknote, Tag, Handshake, Wallet, Group } from 'lucide-react';
+import { Home, Banknote, Tag, Handshake, Wallet, Group, Coins } from 'lucide-react';
 
 export type MenuItem = {
   title: string;
@@ -7,49 +7,47 @@ export type MenuItem = {
   isActive?: boolean;
 };
 
+const isUrlActive = (pathname: string, url: string) =>
+  url === '/app' ? pathname === url : pathname === url || pathname.startsWith(`${url}/`);
+
 export function getMenuList(pathname: string): MenuItem[] {
-  return [
+  const items: Omit<MenuItem, 'isActive'>[] = [
     {
       title: 'Home',
       url: '/app',
-      isActive: pathname === '/app',
       icon: Home,
     },
     {
       title: 'Caixa',
       url: '/app/cash',
-      isActive: pathname === '/app/cash',
-      icon: Home,
+      icon: Coins,
     },
     {
       title: 'Orçamentos',
       url: '/app/budgets',
-      isActive: pathname === '/app/budgets',
       icon: Banknote,
     },
     {
       title: 'Parceiros',
       url: '/app/parties',
-      isActive: pathname === '/app/parties',
       icon: Handshake,
     },
     {
       title: 'Contas Bancárias',
       url: '/app/bank-accounts',
-      isActive: pathname === '/app/bank-accounts',
       icon: Wallet,
     },
     {
       title: 'Categorias',
       url: '/app/categories',
-      isActive: pathname === '/app/categories',
       icon: Group,
     },
     {
       title: 'Agrupadores',
       url: '/app/tags',
-      isActive: pathname === '/app/tags',
       icon: Tag,
     },
   ];
+
+  return items.map((item) => ({ ...item, isActive: isUrlActive(pathname, item.url) }));
 }
