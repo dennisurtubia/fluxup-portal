@@ -13,6 +13,14 @@ import { authServiceHttpServiceInstance } from '../http/AuthHttpService';
 import Logo from '@/assets/fluxup.svg';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 
 type JwtDecryptedPayload = {
@@ -27,15 +35,10 @@ const loginSchema = z.object({
 type LoginData = z.infer<typeof loginSchema>;
 
 const LoginPage = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-    getValues,
-  } = useForm<LoginData>({
+  const form = useForm<LoginData>({
     resolver: zodResolver(loginSchema),
   });
+  const { reset, getValues, setFocus } = form;
 
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -57,11 +60,12 @@ const LoginPage = () => {
       navigate('/app');
     },
     onError: () => {
-      toast.error('E-mail ou senha inválidos');
+      toast.error('E-mail ou senha inválidos. Tente novamente.');
       reset({
         username: getValues('username'),
         password: '',
       });
+      setFocus('password');
     },
   });
 
@@ -78,9 +82,10 @@ const LoginPage = () => {
         type="button"
         className="absolute top-1/2 right-2 -translate-y-1/2 hover:bg-transparent"
         onClick={togglePassword}
-        tabIndex={-1}
         variant="ghost"
-        role="button"
+        size="icon"
+        aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+        aria-pressed={showPassword}
       >
         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
       </Button>
@@ -92,38 +97,61 @@ const LoginPage = () => {
       <Card className="w-full max-w-sm shadow-lg">
         <CardHeader>
           <CardTitle className="text-2xl text-center">
-            <img src={Logo} alt="Logo" className="w-42 mx-auto mb-4" />
+            <img src={Logo} alt="FluxUP" className="w-42 mx-auto mb-4" />
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <Input type="text" placeholder="E-mail" {...register('username')} />
-              {errors.username && (
-                <p className="text-sm text-red-500 mt-1">{errors.username.message}</p>
-              )}
-            </div>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>E-mail</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="voce@exemplo.com"
+                        autoComplete="username"
+                        disabled={loginMutation.isPending}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div>
-              <div className="relative">
-                <Input
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Senha"
-                  {...register('password')}
-                  className="pr-10"
-                />
-                {renderEyeButton()}
-              </div>
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Senha</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? 'text' : 'password'}
+                          placeholder="Senha"
+                          autoComplete="current-password"
+                          disabled={loginMutation.isPending}
+                          className="pr-10"
+                          {...field}
+                        />
+                        {renderEyeButton()}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              {errors.password && (
-                <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>
-              )}
-            </div>
-
-            <Button type="submit" className="w-full" disabled={loginMutation.isPending}>
-              {loginMutation.isPending ? 'Entrando...' : 'Entrar'}
-            </Button>
-          </form>
+              <Button type="submit" className="w-full" disabled={loginMutation.isPending}>
+                {loginMutation.isPending ? 'Entrando...' : 'Entrar'}
+              </Button>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>
