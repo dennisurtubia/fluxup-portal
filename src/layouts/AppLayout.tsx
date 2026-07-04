@@ -20,7 +20,7 @@ const AppLayout = () => {
         >
           <div className="flex items-center">
             <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 w-px h-4 bg-gray-300" />
+            <Separator orientation="vertical" className="mr-2 w-px h-4 bg-border" />
           </div>
           <ThemeSwitch />
         </header>

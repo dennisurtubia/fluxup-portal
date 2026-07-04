@@ -21,18 +21,13 @@ const statusLabel: Record<
   string,
   {
     label: string;
-    variant: 'default' | 'secondary' | 'destructive' | 'outline';
-    className?: string;
+    variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'success';
   }
 > = {
   PENDING_APPROVAL: { label: 'Aguardando Aprovação', variant: 'default' },
   APPROVED: { label: 'Aprovado', variant: 'secondary' },
   PENDING_PAYMENT: { label: 'Aguardando Pagamento', variant: 'default' },
-  PAID: {
-    label: 'Pago',
-    variant: 'secondary',
-    className: 'bg-green-500 text-white hover:bg-green-600',
-  },
+  PAID: { label: 'Pago', variant: 'success' },
   OVERDUE_PAYMENT: { label: 'Pagamento Atrasado', variant: 'destructive' },
 };
 
@@ -86,7 +81,7 @@ function ActionsCell({ entry, cashFlowId }: { entry: CashEntryType; cashFlowId: 
           size="sm"
           onClick={() => mutation.mutate('PAID')}
           disabled={mutation.isPending}
-          className="gap-2 bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800"
+          className="gap-2 bg-success/10 text-success hover:bg-success/15"
         >
           <CheckCircle className="h-4 w-4" />
           Marcar como Paga
@@ -222,9 +217,7 @@ export const getCashEntryColumns = ({
       const status = row.getValue('status') as string;
       const statusInfo = statusLabel[status as keyof typeof statusLabel];
       return (
-        <Badge variant={statusInfo?.variant || 'outline'} className={statusInfo?.className}>
-          {statusInfo?.label || status}
-        </Badge>
+        <Badge variant={statusInfo?.variant || 'outline'}>{statusInfo?.label || status}</Badge>
       );
     },
   },

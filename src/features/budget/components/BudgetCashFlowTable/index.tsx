@@ -116,17 +116,15 @@ export function BudgetCashFlowTable({ budgetId }: BudgetTableProps) {
                       {name}
                     </div>
                   </TableCell>
-                  <TableCell className="text-right font-medium text-green-600 dark:text-green-200">
+                  <TableCell className="text-right font-medium text-success">
                     {formatCurrency(cashFlow.total_incomes)}
                   </TableCell>
-                  <TableCell className="text-right font-medium text-red-600 dark:text-red-200">
+                  <TableCell className="text-right font-medium text-destructive">
                     {formatCurrency(cashFlow.total_expenses)}
                   </TableCell>
                   <TableCell
                     className={`text-right font-medium ${
-                      cashFlow.balance >= 0
-                        ? 'text-green-600 dark:text-green-200'
-                        : 'text-red-600 dark:text-red-200'
+                      cashFlow.balance >= 0 ? 'text-success' : 'text-destructive'
                     }`}
                   >
                     {formatCurrency(cashFlow.balance)}
@@ -187,10 +185,10 @@ export function BudgetCashFlowTable({ budgetId }: BudgetTableProps) {
 
           <TableRow className="bg-muted/50 font-bold">
             <TableCell>Total Anual</TableCell>
-            <TableCell className="text-right text-green-600 dark:text-green-200">
+            <TableCell className="text-right text-success">
               {formatCurrency(budgetCashFlow?.reduce((acc, c) => acc + c.total_incomes, 0) || 0)}
             </TableCell>
-            <TableCell className="text-right text-red-600 dark:text-red-200">
+            <TableCell className="text-right text-destructive">
               {formatCurrency(budgetCashFlow?.reduce((acc, c) => acc + c.total_expenses, 0) || 0)}
             </TableCell>
             <TableCell className="text-right">
