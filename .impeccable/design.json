@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-04T20:35:59Z",
+  "title": "Design System: FluxUP",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Índigo FluxUP",
+        "canonical": "oklch(0.48 0.16 280)",
+        "tonalRamp": [
+          "oklch(0.18 0.06 280)",
+          "oklch(0.28 0.09 280)",
+          "oklch(0.38 0.12 280)",
+          "oklch(0.48 0.16 280)",
+          "oklch(0.58 0.15 280)",
+          "oklch(0.68 0.13 280)",
+          "oklch(0.82 0.11 280)",
+          "oklch(0.93 0.04 280)"
+        ]
+      },
+      "accent-violet": {
+        "role": "secondary",
+        "displayName": "Violeta-céu",
+        "canonical": "oklch(0.68 0.13 250)",
+        "tonalRamp": [
+          "oklch(0.20 0.05 250)",
+          "oklch(0.32 0.08 250)",
+          "oklch(0.44 0.11 250)",
+          "oklch(0.56 0.13 250)",
+          "oklch(0.68 0.13 250)",
+          "oklch(0.78 0.10 250)",
+          "oklch(0.88 0.06 250)",
+          "oklch(0.95 0.02 250)"
+        ]
+      },
+      "success": {
+        "role": "tertiary",
+        "displayName": "Verde-livro-caixa",
+        "canonical": "oklch(0.6 0.15 145)",
+        "tonalRamp": [
+          "oklch(0.20 0.05 145)",
+          "oklch(0.30 0.08 145)",
+          "oklch(0.40 0.11 145)",
+          "oklch(0.50 0.14 145)",
+          "oklch(0.60 0.15 145)",
+          "oklch(0.72 0.14 145)",
+          "oklch(0.85 0.10 145)",
+          "oklch(0.94 0.05 145)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Tinta",
+        "canonical": "oklch(0.141 0.005 285.823)"
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Superfície",
+        "canonical": "oklch(0.967 0.001 286.375)"
+      },
+      "muted-ink": {
+        "role": "neutral",
+        "displayName": "Tinta-muted",
+        "canonical": "oklch(0.552 0.016 285.938)"
+      },
+      "destructive": {
+        "role": "neutral",
+        "displayName": "Destructive",
+        "canonical": "oklch(0.577 0.245 27.325)"
+      }
+    },
+    "typographyMeta": {
+      "title": { "displayName": "Title", "purpose": "Títulos de página e cabeçalho de card." },
+      "body": { "displayName": "Body", "purpose": "Texto de tabela, formulário e corpo geral." },
+      "label": { "displayName": "Label", "purpose": "Rótulos de campo, badges, cabeçalhos de coluna." }
+    },
+    "shadows": [
+      { "name": "shadow-xs", "value": "0 1px 2px 0 rgb(0 0 0 / 0.05)", "purpose": "Botões, inputs, badges — presença mínima de borda." },
+      { "name": "shadow-sm", "value": "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)", "purpose": "Cards — separação sutil do fundo." }
+    ],
+    "motion": [],
+    "breakpoints": []
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Ação primária: salvar, criar, confirmar.",
+      "html": "<button class=\"ds-btn-primary\">Salvar lançamento</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: oklch(0.48 0.16 280); color: oklch(0.98 0.01 280); border: none; border-radius: 8px; padding: 8px 16px; height: 36px; font-size: 14px; font-weight: 500; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); transition: background 0.15s, box-shadow 0.15s; } .ds-btn-primary:hover { background: oklch(0.44 0.16 280); box-shadow: 0 2px 8px 0 oklch(0.48 0.16 280 / 0.25); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 3px oklch(0.48 0.16 280 / 0.5); }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Ação secundária neutra: cancelar, voltar.",
+      "html": "<button class=\"ds-btn-secondary\">Cancelar</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: oklch(0.967 0.001 286.375); color: oklch(0.141 0.005 285.823); border: none; border-radius: 8px; padding: 8px 16px; height: 36px; font-size: 14px; font-weight: 500; transition: background 0.15s; } .ds-btn-secondary:hover { background: oklch(0.93 0.002 286.375); } .ds-btn-secondary:focus-visible { outline: none; box-shadow: 0 0 0 3px oklch(0.7 0.01 286 / 0.4); }"
+    },
+    {
+      "name": "Success Badge",
+      "kind": "chip",
+      "refersTo": "badge-success",
+      "description": "Status pago/conciliado/saldo positivo.",
+      "html": "<span class=\"ds-badge-success\">Conciliado</span>",
+      "css": ".ds-badge-success { display: inline-flex; align-items: center; gap: 4px; background: oklch(0.6 0.15 145); color: oklch(0.98 0.01 145); border-radius: 6px; padding: 2px 8px; font-size: 12px; font-weight: 500; white-space: nowrap; }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Contêiner padrão para blocos de conteúdo (resumo de conta, formulário agrupado).",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-title\">Saldo em conta</div><div class=\"ds-card-body\">R$ 12.480,00</div></div>",
+      "css": ".ds-card { background: oklch(1 0 0); color: oklch(0.141 0.005 285.823); border: 1px solid oklch(0.92 0.004 286.32); border-radius: 14px; padding: 24px; box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); } .ds-card-title { font-size: 12px; font-weight: 500; color: oklch(0.552 0.016 285.938); margin-bottom: 8px; } .ds-card-body { font-size: 18px; font-weight: 600; }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Campo de texto padrão em formulários.",
+      "html": "<input class=\"ds-input\" placeholder=\"0,00\" />",
+      "css": ".ds-input { height: 36px; width: 100%; border: 1px solid oklch(0.92 0.004 286.32); border-radius: 8px; background: transparent; padding: 4px 12px; font-size: 14px; color: oklch(0.141 0.005 285.823); transition: border-color 0.15s, box-shadow 0.15s; } .ds-input::placeholder { color: oklch(0.552 0.016 285.938); } .ds-input:focus-visible { outline: none; border-color: oklch(0.48 0.16 280); box-shadow: 0 0 0 3px oklch(0.48 0.16 280 / 0.5); }"
+    },
+    {
+      "name": "Active Nav Item",
+      "kind": "nav",
+      "refersTo": "nav-active",
+      "description": "Item ativo na sidebar — fundo tingido de Índigo, nunca borda lateral colorida.",
+      "html": "<a class=\"ds-nav-item ds-nav-item-active\" href=\"#\">Orçamento</a>",
+      "css": ".ds-nav-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; font-size: 14px; font-weight: 500; color: oklch(0.141 0.005 285.823); text-decoration: none; transition: background 0.15s, color 0.15s; } .ds-nav-item-active { background: oklch(0.48 0.16 280 / 0.1); color: oklch(0.48 0.16 280); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "O Painel de Controle Sem Fricção",
+    "overview": "FluxUP é a operação financeira de uma arena de futsal condensada em telas que se leem em segundos: contas bancárias, orçamento, caixa, categorias, tags e parceiros. Quem abre o sistema não está passeando — está lançando um pagamento, conferindo um saldo ou fechando o caixa do dia, muitas vezes entre um atendimento e outro. Por isso a base do sistema (herdada do shadcn/ui, quase inteiramente em tons de cinza) permanece: densidade de dados, tabelas limpas, formulários objetivos. O que faltava era uma assinatura própria — hoje o botão \"primário\" é literalmente preto-sobre-branco, indistinguível de qualquer scaffold padrão. O FluxUP ganha um roxo-índigo considerado (não o roxo-gradiente de landing page de IA) como cor de marca, usado com disciplina: presente nos pontos de decisão (ação primária, item ativo do menu, foco de campo), ausente do resto da tela.",
+    "keyCharacteristics": [
+      "Neutro por padrão, roxo-índigo por exceção — a cor de marca aparece em ≤10% de qualquer tela.",
+      "Densidade de dados acima de espaço em branco decorativo: tabelas e formulários são o produto.",
+      "Elevação quase inexistente (sombras xs/sm); profundidade vem de contraste tonal, não de blur.",
+      "Zero elementos puramente decorativos: toda cor, toda sombra, todo raio tem um motivo funcional."
+    ],
+    "rules": [
+      { "name": "A Regra dos 10%", "body": "O Índigo FluxUP nunca cobre mais de ~10% de uma tela. Ele marca decisão — não decora.", "section": "colors" },
+      { "name": "A Regra do Texto sobre Cor", "body": "Texto branco/quase-branco sobre o Índigo em modo claro; texto escuro sobre o Índigo (tom claro, L 0.82) em modo escuro.", "section": "colors" },
+      { "name": "A Regra do Número Legível", "body": "Valores monetários e datas nunca usam peso light; considerar tabular-nums em colunas de valor.", "section": "typography" },
+      { "name": "A Regra do Plano por Padrão", "body": "Superfícies são planas em repouso; a única exceção é um glow sutil tingido de Índigo no hover do botão primário.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do usar o Índigo FluxUP apenas em pontos de decisão: botão primário, item ativo de navegação, anel de foco, link, primeira série de gráfico.",
+      "Do manter o restante da tela neutro (cinza/branco/preto).",
+      "Do tokenizar o verde de sucesso hoje hardcoded em badge.tsx como --success / --success-foreground.",
+      "Do manter elevação quase plana (shadow-xs/shadow-sm).",
+      "Do usar tabular-nums em colunas de valores monetários."
+    ],
+    "donts": [
+      "Don't usar gradiente em texto ou em fundo de botão.",
+      "Don't usar border-left/border-right colorido como indicador de estado ativo ou destaque.",
+      "Don't deixar o Índigo FluxUP cobrir blocos grandes de tela (heróis, banners, fundos de seção inteira).",
+      "Don't introduzir glassmorphism, blur decorativo ou cards flutuantes sobre cards.",
+      "Don't aplicar o Índigo FluxUP com chroma acima de ~0.18.",
+      "Don't misturar mais de dois tons de acento (Índigo + Violeta-céu) numa mesma tela além do Destructive/Success semânticos."
+    ]
+  }
+}
