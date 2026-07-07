@@ -1,14 +1,13 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { forwardRef, useEffect, useImperativeHandle, useMemo, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { z } from 'zod';
 
 import { cashEntryHttpServiceInstance } from '../../http/CashEntryHttpService';
 
-import { CashEntryStepOne } from './CashEntryStepOne';
-import { CashEntryStepTwo } from './CashEntryStepTwo';
+import { CashEntryForm, CashEntryFormData } from './CashEntryForm';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -19,7 +18,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Stepper } from '@/components/ui/stepper';
+import { Form } from '@/components/ui/form';
+import {
+  bankAccountHttpServiceInstance,
+  BankAccountType,
+} from '@/features/bank-account/http/BankAcoountHttpService';
 import {
   categoryHttpServiceInstance,
   CategoryType,
@@ -30,35 +33,6 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { useDidMountUpdate } from '@/hooks/useDidMountUpdate';
 
 const cashEntryCreateSchema = z.object({
-  description: z.string().max(40, 'A descrição deve ter no máximo 40 caracteres'),
-  type: z.enum(['income', 'expense']),
-  payment_type: z.enum([
-    'boleto',
-    'ted',
-    'pix',
-    'credit_card',
-    'debit_card',
-    'cash',
-    'direct_debit',
-    'account_credit',
-  ]),
-  transaction_date: z.date(),
-  tags: z.array(z.number().int()).optional(),
-  category_id: z.string(),
-  party_id: z.string(),
-  amount: z.number({ required_error: 'O valor é obrigatório' }),
-  items: z
-    .array(
-      z.object({
-        amount: z.number().min(0.01, 'Valor deve ser maior que zero'),
-        bank_account_id: z.number().min(1, 'Selecione uma conta bancária'),
-        description: z.string(),
-      }),
-    )
-    .min(1, 'Pelo menos um item é obrigatório'),
-});
-
-const cashEntryStepOneSchema = z.object({
   category_id: z
     .string({ required_error: 'Selecione uma categoria' })
     .min(1, 'Selecione uma categoria'),
@@ -74,22 +48,10 @@ const cashEntryStepOneSchema = z.object({
   amount: z
     .number({ required_error: 'O valor é obrigatório' })
     .min(0.01, 'O valor deve ser maior que zero'),
+  bank_account_id: z
+    .number({ required_error: 'Selecione uma conta bancária' })
+    .min(1, 'Selecione uma conta bancária'),
 });
-
-const cashEntryStepTwoSchema = cashEntryCreateSchema.pick({
-  items: true,
-});
-
-const STEPS = [
-  {
-    title: 'Informações Gerais',
-    description: 'Dados básicos da entrada',
-  },
-  {
-    title: 'Valores e Contas',
-    description: 'Defina os valores e contas bancárias',
-  },
-];
 
 export type CashEntryCreateDialogRef = {
   open: () => void;
@@ -97,50 +59,25 @@ export type CashEntryCreateDialogRef = {
   setCashId: (_: number) => void;
 };
 
-type CashEntryCreateData = z.infer<typeof cashEntryCreateSchema>;
-type CashEntryStepOneData = z.infer<typeof cashEntryStepOneSchema>;
-type CashEntryStepTwoData = z.infer<typeof cashEntryStepTwoSchema>;
-
 const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
   const [open, setOpen] = useState(false);
   const [cashId, setCashId] = useState<number | null>(null);
-  const [currentStep, setCurrentStep] = useState(0);
   const [partySearch, setPartySearch] = useState('');
   const [selectedParty, setSelectedParty] = useState<PartyType | null>(null);
   const debouncedPartySearch = useDebounce(partySearch);
   const queryClient = useQueryClient();
 
-  const formStepOne = useForm<CashEntryStepOneData>({
-    resolver: zodResolver(cashEntryStepOneSchema),
+  const form = useForm<CashEntryFormData>({
+    resolver: zodResolver(cashEntryCreateSchema),
     mode: 'onSubmit',
     reValidateMode: 'onChange',
     defaultValues: {
       description: '',
+      tags: [],
     },
   });
 
-  const formStepTwo = useForm<CashEntryStepTwoData>({
-    resolver: zodResolver(cashEntryStepTwoSchema),
-    mode: 'onSubmit',
-    reValidateMode: 'onChange',
-    defaultValues: {
-      items: [
-        {
-          amount: 0,
-          bank_account_id: 0,
-          description: '',
-        },
-      ],
-    },
-  });
-
-  const total = useWatch({ control: formStepOne.control, name: 'amount', defaultValue: 0.0 });
-  const totalItems = useWatch({ control: formStepTwo.control, name: 'items', defaultValue: [] });
-  const partyId = useWatch({ control: formStepOne.control, name: 'party_id', defaultValue: '' });
-
-  const computedTotalItems = useMemo(() => {
-    return totalItems.reduce((acc, item) => acc + (item.amount || 0), 0);
-  }, [totalItems]);
+  const partyId = useWatch({ control: form.control, name: 'party_id', defaultValue: '' });
 
   useEffect(() => {
     if (!partyId) {
@@ -149,37 +86,32 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
   }, [partyId]);
 
   useImperativeHandle(ref, () => ({
-    open: () => {
-      setOpen(true);
-      setCurrentStep(0);
-    },
-    close: () => {
-      setOpen(false);
-      setCurrentStep(0);
-    },
+    open: () => setOpen(true),
+    close: () => setOpen(false),
     setCashId: (newCashId: number) => setCashId(newCashId),
   }));
 
   const cashMutation = useMutation({
-    mutationFn: async (data: CashEntryCreateData) => {
+    mutationFn: async (data: CashEntryFormData) => {
       if (cashId == null) return Promise.resolve(null);
 
       return cashEntryHttpServiceInstance.createCashEntry(cashId, {
-        ...data,
+        description: data.description,
+        amount: data.amount,
+        type: data.type,
+        tags: data.tags,
+        transaction_date: data.transaction_date.toISOString(),
         category_id: Number(data.category_id),
         party_id: Number(data.party_id),
-        transaction_date: data.transaction_date.toISOString(),
-        tags: data.tags,
-        items: data.items,
+        payment_type: data.payment_type,
+        items: [{ amount: data.amount, bank_account_id: data.bank_account_id }],
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cash-entry', 1] });
 
       setOpen(false);
-      setCurrentStep(0);
-      formStepOne.reset();
-      formStepTwo.reset();
+      form.reset();
 
       toast.success('Entrada criada com sucesso!');
     },
@@ -188,29 +120,9 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
     },
   });
 
-  const handleSubmitStepOne = formStepOne.handleSubmit(async () => {
-    // Validação bem-sucedida, avança para o próximo step
-    setCurrentStep(1);
-    // Limpa os erros do step 2 ao entrar nele
-    formStepTwo.clearErrors();
-  });
-
-  const handleSubmitStepTwo = formStepTwo.handleSubmit(async (dataStepTwo) => {
-    const dataStepOne = formStepOne.getValues();
-
-    const data: CashEntryCreateData = {
-      ...dataStepOne,
-      ...dataStepTwo,
-    };
-
+  const onSubmit = form.handleSubmit((data) => {
     cashMutation.mutate(data);
   });
-
-  const handlePreviousStep = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
 
   const { data: tags, isLoading: isLoadingTags } = useQuery<TagType[] | undefined>({
     queryKey: ['tags', 1],
@@ -245,74 +157,63 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
     },
   });
 
+  const { data: bankAccounts, isLoading: isLoadingBankAccounts } = useQuery<
+    BankAccountType[] | undefined
+  >({
+    queryKey: ['bank-accounts', 1],
+    retry: false,
+    queryFn: async () => {
+      const response = await bankAccountHttpServiceInstance.getBankAccounts();
+      return response;
+    },
+  });
+
   useDidMountUpdate(() => {
     if (open) {
-      formStepOne.reset(undefined, {
+      form.reset(undefined, {
         keepErrors: false,
         keepDirty: false,
         keepTouched: false,
       });
-      formStepTwo.reset(undefined, {
-        keepErrors: false,
-        keepDirty: false,
-        keepTouched: false,
-      });
-      setCurrentStep(0);
     }
-  }, [formStepOne, formStepTwo, open]);
+  }, [form, open]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-3xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Criar entrada</DialogTitle>
           <DialogDescription>Preencha os detalhes para criar uma nova entrada.</DialogDescription>
         </DialogHeader>
 
-        <div className="mb-6">
-          <Stepper currentStep={currentStep} steps={STEPS} />
-        </div>
-
-        {currentStep === 0 && (
-          <form onSubmit={handleSubmitStepOne} className="space-y-4">
-            <CashEntryStepOne
-              form={formStepOne}
+        <Form {...form}>
+          <form onSubmit={onSubmit} className="space-y-6">
+            <CashEntryForm
+              form={form}
               categories={categories}
               isLoadingCategories={isLoadingCategories}
               tags={tags}
               isLoadingTags={isLoadingTags}
               parties={parties}
               isLoadingParties={isLoadingParties}
+              bankAccounts={bankAccounts}
+              isLoadingBankAccounts={isLoadingBankAccounts}
               partySearch={partySearch}
               onPartySearchChange={setPartySearch}
               selectedParty={selectedParty}
               onSelectedPartyChange={setSelectedParty}
             />
 
-            <DialogFooter className="flex justify-end mt-6">
-              <Button type="submit">Próximo</Button>
-            </DialogFooter>
-          </form>
-        )}
-
-        {currentStep === 1 && (
-          <form onSubmit={handleSubmitStepTwo} className="space-y-4">
-            <CashEntryStepTwo
-              form={formStepTwo}
-              total={total}
-              computedTotalItems={computedTotalItems}
-            />
-
-            <DialogFooter className="flex justify-between mt-6">
-              <Button type="button" variant="outline" onClick={handlePreviousStep}>
-                Voltar
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                Cancelar
               </Button>
               <Button type="submit" disabled={cashMutation.isPending}>
                 {cashMutation.isPending ? 'Salvando...' : 'Salvar'}
               </Button>
             </DialogFooter>
           </form>
-        )}
+        </Form>
       </DialogContent>
     </Dialog>
   );
