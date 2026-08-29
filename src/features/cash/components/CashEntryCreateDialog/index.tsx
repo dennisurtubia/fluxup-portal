@@ -104,7 +104,7 @@ const CashEntryCreateDialog = forwardRef<CashEntryCreateDialogRef>((_, ref) => {
         category_id: Number(data.category_id),
         party_id: Number(data.party_id),
         payment_type: data.payment_type,
-        items: [{ amount: data.amount, bank_account_id: data.bank_account_id }],
+        bank_account_id: data.bank_account_id,
       });
     },
     onSuccess: () => {
